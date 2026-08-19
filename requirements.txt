@@ -1,0 +1,2 @@
+# Ativa o grafo de agentes. O servidor também possui fallback determinístico.
+langgraph==1.2.11

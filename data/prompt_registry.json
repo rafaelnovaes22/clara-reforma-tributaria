@@ -1,0 +1,34 @@
+{
+  "updated_at": "2026-08-19T15:00:00-03:00",
+  "change_policy": "Toda mudança exige caso de teste, revisão e versão imutável.",
+  "prompts": [
+    {
+      "id": "orchestrator-2026.08.19-v4",
+      "owner": "Product AI",
+      "purpose": "Classificar intenção e selecionar agente especializado",
+      "status": "demo-approved",
+      "eval_suite": "evals-conversation-rtc-2026.08.19-v3"
+    },
+    {
+      "id": "tax-specialist-2026.08.19-v6",
+      "owner": "Conteúdo tributário",
+      "purpose": "Responder somente com evidências oficiais recuperadas",
+      "status": "demo-approved",
+      "eval_suite": "evals-conversation-rtc-2026.08.19-v3"
+    },
+    {
+      "id": "reviewer-2026.08.19-v4",
+      "owner": "Risco e qualidade",
+      "purpose": "Aplicar guardrails, risco e revisão humana",
+      "status": "demo-approved",
+      "eval_suite": "evals-conversation-rtc-2026.08.19-v3"
+    },
+    {
+      "id": "soul-clara-2026.08.19-v1",
+      "owner": "Equipe contábil e governança de IA",
+      "purpose": "Definir identidade, evidência ou abstenção, atualidade, linguagem e segurança",
+      "status": "demo-approved",
+      "eval_suite": "evals-conversation-rtc-2026.08.19-v3"
+    }
+  ]
+}

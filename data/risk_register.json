@@ -1,0 +1,11 @@
+{
+  "framework": "ISO/IEC 42001-inspired AIMS controls for hackathon demonstration",
+  "disclaimer": "A demo demonstra alinhamento de controles; não representa certificação ISO/IEC 42001.",
+  "risks": [
+    {"id":"R-01","risk":"Resposta fiscal incorreta ou sem fundamento","level":"high","controls":["RAG oficial temporal","groundedness eval","revisão humana"]},
+    {"id":"R-02","risk":"Mistura de informações entre clientes","level":"high","controls":["client_id obrigatório","fibras de memória isoladas","teste de contaminação"]},
+    {"id":"R-03","risk":"Prompt injection ou exposição de instruções","level":"medium","controls":["input guardrail","saída restrita","eval adversarial"]},
+    {"id":"R-04","risk":"Base normativa desatualizada","level":"high","controls":["data de corte","fonte e vigência","monitoramento RFB/CGIBS"]},
+    {"id":"R-05","risk":"Automação indevida de decisão profissional","level":"medium","controls":["assistente, não decisor","classificação de risco","human-in-the-loop"]}
+  ]
+}
