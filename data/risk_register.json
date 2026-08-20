@@ -1,11 +1,13 @@
 {
-  "framework": "ISO/IEC 42001-inspired AIMS controls for hackathon demonstration",
-  "disclaimer": "A demo demonstra alinhamento de controles; não representa certificação ISO/IEC 42001.",
+  "framework": "Controles de piloto inspirados na ISO/IEC 42001",
+  "disclaimer": "O piloto testa controles técnicos; não representa certificação ISO/IEC 42001 nem aprovação fiscal.",
   "risks": [
-    {"id":"R-01","risk":"Resposta fiscal incorreta ou sem fundamento","level":"high","controls":["RAG oficial temporal","groundedness eval","revisão humana"]},
-    {"id":"R-02","risk":"Mistura de informações entre clientes","level":"high","controls":["client_id obrigatório","fibras de memória isoladas","teste de contaminação"]},
-    {"id":"R-03","risk":"Prompt injection ou exposição de instruções","level":"medium","controls":["input guardrail","saída restrita","eval adversarial"]},
-    {"id":"R-04","risk":"Base normativa desatualizada","level":"high","controls":["data de corte","fonte e vigência","monitoramento RFB/CGIBS"]},
-    {"id":"R-05","risk":"Automação indevida de decisão profissional","level":"medium","controls":["assistente, não decisor","classificação de risco","human-in-the-loop"]}
+    {"id":"R-01","risk":"Resposta fiscal incorreta ou sem fundamento","level":"high","status":"pilot-validation","controls":["busca oficial ao vivo","abstenção segura","revisão obrigatória"]},
+    {"id":"R-02","risk":"Mistura de informações entre clientes","level":"high","status":"pilot-validation","controls":["ator autenticado","cliente fixado no servidor","sessão e memória limitadas"]},
+    {"id":"R-03","risk":"Prompt injection ou exposição de instruções","level":"high","status":"pilot-validation","controls":["guardrail antes do modelo","entrada bloqueada não persiste","eval adversarial em dois turnos"]},
+    {"id":"R-04","risk":"Base normativa desatualizada","level":"high","status":"pilot-validation","controls":["catálogo com expiração","URLs canônicas","busca oficial ao vivo"]},
+    {"id":"R-05","risk":"Automação indevida de decisão profissional","level":"high","status":"pilot-validation","controls":["rascunho explícito","revisão obrigatória","sem aprovação de XML"]},
+    {"id":"R-06","risk":"Exposição de dados fiscais ou pessoais","level":"high","status":"pilot-validation","controls":["dados sintéticos obrigatórios","XML bruto fora do modelo","logs sem conteúdo"]},
+    {"id":"R-07","risk":"Abuso de custo ou indisponibilidade","level":"medium","status":"pilot-validation","controls":["Basic Auth","rate limit","limites de corpo e concorrência"]}
   ]
 }

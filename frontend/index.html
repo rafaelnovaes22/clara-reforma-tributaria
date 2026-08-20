@@ -1,137 +1,486 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clara · Copiloto da Reforma Tributária</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
-<body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">C</div><div><strong>Clara</strong><span>Reforma do Consumo</span></div></div>
-      <button class="new-chat" id="newChat">＋ Nova conversa</button>
-      <nav>
-        <p class="nav-label">ESPAÇO DE TRABALHO</p>
-        <button class="nav-item active" data-view="chat"><span>◫</span> Copiloto</button>
-        <button class="nav-item" data-view="invoice"><span>◇</span> Analisar NF-e <b>3</b></button>
-        <button class="nav-item" data-view="split"><span>⇄</span> Split payment</button>
-        <button class="nav-item" data-view="portfolio"><span>▥</span> Carteira <b class="warn">12</b></button>
-        <button class="nav-item" data-view="governance"><span>◎</span> Governança IA</button>
-      </nav>
-      <div class="client-card">
-        <span>CLIENTE ATIVO</span>
-        <strong>Mercearia Bom Preço</strong>
-        <small>CNPJ 12.345.678/0001-90</small>
-        <div><i></i> Contexto isolado</div>
-      </div>
-      <div class="user"><div class="avatar">MA</div><div><strong>Marina Alves</strong><span>Contadora responsável</span></div><button>⋯</button></div>
-    </aside>
-
-    <main>
-      <header>
-        <div class="mobile-brand"><div class="brand-mark">C</div><strong>Clara</strong></div>
-        <div><h1 id="viewTitle">Copiloto tributário</h1><p id="viewSubtitle">Respostas fundamentadas, com memória e supervisão humana</p></div>
-        <div class="header-actions"><span class="mode" id="engineMode"><i></i> Verificando...</span><button class="connect-openai" id="connectOpenAI">Conectar OpenAI</button><button class="icon-button" title="Notificações">♢<b>4</b></button></div>
-      </header>
-
-      <section class="view active" id="view-chat">
-        <div class="chat-column">
-          <div class="conversation" id="conversation">
-            <div class="date-divider"><span>HOJE, 19 DE AGOSTO</span></div>
-            <article class="message assistant welcome">
-              <div class="bot-avatar">C</div>
-              <div class="bubble">
-                <p class="eyebrow">CLARA · COPILOTO TRIBUTÁRIO</p>
-                <h2>Olá, Marina. Como posso ajudar?</h2>
-                <p>Posso tirar dúvidas da reforma, analisar uma NF-e ou simular o impacto do split payment. Cada resposta passa por fontes oficiais, guardrails e avaliação automática.</p>
-                <div class="suggestions">
-                  <button data-question="Preciso destacar IBS e CBS na NF-e em 2026?"><span>01</span><div><strong>NF-e em 2026</strong><small>Campos IBS e CBS</small></div><b>›</b></button>
-                  <button data-question="Como o split payment afeta o fluxo de caixa do meu cliente?"><span>02</span><div><strong>Split payment</strong><small>Impacto no caixa</small></div><b>›</b></button>
-                  <button data-view-target="invoice"><span>03</span><div><strong>Analisar documento</strong><small>Pré-validar um XML</small></div><b>›</b></button>
-                </div>
-              </div>
-            </article>
-          </div>
-          <div class="composer">
-            <div class="memory-pill">⌁ Memória desta empresa ativa</div>
-            <div class="input-row"><button class="attach" data-view-target="invoice">＋</button><textarea id="question" rows="1" placeholder="Pergunte sobre a Reforma Tributária..."></textarea><button class="send" id="sendButton">Enviar <span>↑</span></button></div>
-            <small>Clara apoia a decisão profissional. Casos de risco exigem revisão da contadora.</small>
-          </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clara · Copiloto da Reforma Tributária</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/chat.css" />
+    <link rel="stylesheet" href="/tools.css" />
+    <link rel="stylesheet" href="/governance.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">C</div>
+          <div><strong>Clara</strong><span>Reforma do Consumo</span></div>
         </div>
-        <aside class="inspector">
-          <div class="inspector-tabs"><button class="active">Execução</button><button id="showGov">Governança</button></div>
-          <div class="run-card">
-            <div class="run-head"><div><span>FLUXO LANGGRAPH</span><strong id="runStatus">Pronto para iniciar</strong></div><span class="live-dot">● AO VIVO</span></div>
-            <div class="agent-flow" id="agentFlow">
-              <div class="agent" data-agent="Memória por fibras"><i>01</i><div><strong>Memória por fibras</strong><span>Cliente · sessão · normas</span></div><em>○</em></div>
-              <div class="connector"></div>
-              <div class="agent" data-agent="Orquestrador"><i>02</i><div><strong>Orquestrador</strong><span>Classifica a intenção</span></div><em>○</em></div>
-              <div class="connector"></div>
-              <div class="agent" data-agent="Pesquisa normativa"><i>03</i><div><strong>Pesquisa normativa</strong><span>RAG oficial e temporal</span></div><em>○</em></div>
-              <div class="connector"></div>
-              <div class="agent" data-agent="Especialista tributário"><i>04</i><div><strong>Especialista tributário</strong><span>Redige com evidências</span></div><em>○</em></div>
-              <div class="connector"></div>
-              <div class="agent" data-agent="Guardrails & revisão"><i>05</i><div><strong>Guardrails & revisão</strong><span>Política e risco</span></div><em>○</em></div>
-              <div class="connector"></div>
-              <div class="agent" data-agent="Avaliador"><i>06</i><div><strong>Avaliador</strong><span>Qualidade e segurança</span></div><em>○</em></div>
+        <button class="new-chat" id="newChat">＋ Nova conversa</button>
+        <nav>
+          <p class="nav-label">ESPAÇO DE TRABALHO</p>
+          <button class="nav-item active" data-view="chat">
+            <span>◫</span> Copiloto
+          </button>
+          <button class="nav-item" data-view="invoice">
+            <span>◇</span> Analisar NF-e <b>3</b>
+          </button>
+          <button class="nav-item" data-view="split">
+            <span>⇄</span> Split payment
+          </button>
+          <button class="nav-item" data-view="portfolio">
+            <span>▥</span> Carteira <b class="warn">12</b>
+          </button>
+          <button class="nav-item" data-view="governance">
+            <span>◎</span> Governança IA
+          </button>
+        </nav>
+        <div class="client-card">
+          <span>CLIENTE SINTÉTICO</span>
+          <strong>Mercearia Demonstração</strong>
+          <small>Sem CNPJ real</small>
+          <div><i></i> Contexto autenticado</div>
+        </div>
+        <div class="user">
+          <div class="avatar">MA</div>
+          <div>
+            <strong>Marina Alves</strong><span>Contadora responsável</span>
+          </div>
+          <button>⋯</button>
+        </div>
+      </aside>
+
+      <main>
+        <header>
+          <div class="mobile-brand">
+            <div class="brand-mark">C</div>
+            <strong>Clara</strong>
+          </div>
+          <div>
+            <h1 id="viewTitle">Copiloto tributário</h1>
+            <p id="viewSubtitle">
+              Respostas fundamentadas, com memória e supervisão humana
+            </p>
+          </div>
+          <div class="header-actions">
+            <span class="mode" id="engineMode"><i></i> Verificando...</span
+            ><button class="icon-button" title="Notificações">♢<b>4</b></button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-chat">
+          <div class="chat-column">
+            <div class="conversation" id="conversation">
+              <div class="date-divider"><span>PILOTO PRIVADO</span></div>
+              <article class="message assistant welcome">
+                <div class="bot-avatar">C</div>
+                <div class="bubble">
+                  <p class="eyebrow">CLARA · COPILOTO TRIBUTÁRIO</p>
+                  <h2>Olá, Marina. Como posso ajudar?</h2>
+                  <p>
+                    Posso pesquisar dúvidas da reforma, fazer triagem de XML
+                    sintético ou simular taxas informadas por você. Conclusões
+                    fiscais exigem fonte oficial ao vivo e revisão da contadora.
+                  </p>
+                  <div class="suggestions">
+                    <button
+                      data-question="Preciso destacar IBS e CBS na NF-e em 2026?"
+                    >
+                      <span>01</span>
+                      <div>
+                        <strong>NF-e em 2026</strong
+                        ><small>Campos IBS e CBS</small>
+                      </div>
+                      <b>›</b>
+                    </button>
+                    <button
+                      data-question="Como o split payment afeta o fluxo de caixa do meu cliente?"
+                    >
+                      <span>02</span>
+                      <div>
+                        <strong>Split payment</strong
+                        ><small>Impacto no caixa</small>
+                      </div>
+                      <b>›</b>
+                    </button>
+                    <button data-view-target="invoice">
+                      <span>03</span>
+                      <div>
+                        <strong>Analisar documento</strong
+                        ><small>Pré-validar um XML</small>
+                      </div>
+                      <b>›</b>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="composer">
+              <div class="memory-pill">⌁ Memória desta empresa ativa</div>
+              <div class="input-row">
+                <button class="attach" data-view-target="invoice">＋</button
+                ><textarea
+                  id="question"
+                  rows="1"
+                  placeholder="Pergunte sobre a Reforma Tributária..."
+                ></textarea
+                ><button class="send" id="sendButton">
+                  Enviar <span>↑</span>
+                </button>
+              </div>
+              <label class="pilot-consent"
+                ><input id="pilotConsent" type="checkbox" /> Confirmo que usarei
+                apenas dados sintéticos e aceito o processamento pela OpenAI com
+                <code>store: false</code>. Logs de monitoramento de abuso podem
+                ser retidos por até 30 dias.</label
+              >
+              <small
+                >Clara não decide nem autoriza. Toda conclusão fiscal exige
+                revisão da contadora.</small
+              >
             </div>
           </div>
-          <div class="metric-grid">
-            <div><span>FONTES</span><strong id="sourceCount">5</strong><small>oficiais</small></div>
-            <div><span>EVAL SCORE</span><strong id="evalScore">—</strong><small>meta ≥ 85%</small></div>
+          <aside class="inspector">
+            <div class="inspector-tabs">
+              <button class="active">Execução</button
+              ><button id="showGov">Governança</button>
+            </div>
+            <div class="run-card">
+              <div class="run-head">
+                <div>
+                  <span>FLUXO LANGGRAPH</span
+                  ><strong id="runStatus">Pronto para iniciar</strong>
+                </div>
+                <span class="live-dot">● AO VIVO</span>
+              </div>
+              <div class="agent-flow" id="agentFlow">
+                <div class="agent" data-agent="Memória por fibras">
+                  <i>01</i>
+                  <div>
+                    <strong>Memória por fibras</strong
+                    ><span>Cliente · sessão · normas</span>
+                  </div>
+                  <em>○</em>
+                </div>
+                <div class="connector"></div>
+                <div class="agent" data-agent="Orquestrador">
+                  <i>02</i>
+                  <div>
+                    <strong>Orquestrador</strong
+                    ><span>Classifica a intenção</span>
+                  </div>
+                  <em>○</em>
+                </div>
+                <div class="connector"></div>
+                <div class="agent" data-agent="Pesquisa normativa">
+                  <i>03</i>
+                  <div>
+                    <strong>Pesquisa normativa</strong
+                    ><span>RAG oficial e temporal</span>
+                  </div>
+                  <em>○</em>
+                </div>
+                <div class="connector"></div>
+                <div class="agent" data-agent="Especialista tributário">
+                  <i>04</i>
+                  <div>
+                    <strong>Especialista tributário</strong
+                    ><span>Redige com evidências</span>
+                  </div>
+                  <em>○</em>
+                </div>
+                <div class="connector"></div>
+                <div class="agent" data-agent="Guardrails & revisão">
+                  <i>05</i>
+                  <div>
+                    <strong>Guardrails & revisão</strong
+                    ><span>Política e risco</span>
+                  </div>
+                  <em>○</em>
+                </div>
+                <div class="connector"></div>
+                <div class="agent" data-agent="Avaliador">
+                  <i>06</i>
+                  <div>
+                    <strong>Avaliador</strong><span>Qualidade e segurança</span>
+                  </div>
+                  <em>○</em>
+                </div>
+              </div>
+            </div>
+            <div class="metric-grid">
+              <div>
+                <span>FONTES</span><strong id="sourceCount">5</strong
+                ><small>oficiais</small>
+              </div>
+              <div>
+                <span>HARD GATES</span><strong id="evalScore">Pendente</strong
+                ><small>100% obrigatório</small>
+              </div>
+            </div>
+            <div class="control-card">
+              <div>
+                <span class="shield">✓</span>
+                <div>
+                  <strong>Revisão humana</strong
+                  ><small id="reviewText"
+                    >Obrigatória para conclusão fiscal</small
+                  >
+                </div>
+              </div>
+              <button>Ativo</button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="view tool-view" id="view-invoice">
+          <div class="tool-hero">
+            <span class="kicker">TRIAGEM DOCUMENTAL LIMITADA</span>
+            <h2>Inspecione uma NF-e sintética</h2>
+            <p>
+              A triagem não valida schema, assinatura, cálculo, autorização ou
+              conformidade fiscal.
+            </p>
           </div>
-          <div class="control-card"><div><span class="shield">✓</span><div><strong>Revisão humana</strong><small id="reviewText">Ativada para médio/alto risco</small></div></div><button>Ativo</button></div>
-        </aside>
-      </section>
+          <div class="upload-card" id="dropZone">
+            <div class="upload-icon">⇧</div>
+            <h3>Arraste somente um XML sintético</h3>
+            <p>O envio depende da confirmação de dados sintéticos no chat.</p>
+            <label class="primary-button"
+              >Escolher XML<input
+                type="file"
+                id="xmlFile"
+                accept=".xml,text/xml"
+                hidden /></label
+            ><button class="link-button" id="sampleXml">
+              Usar XML demonstrativo
+            </button>
+          </div>
+          <div class="result-card hidden" id="xmlResult"></div>
+        </section>
 
-      <section class="view tool-view" id="view-invoice">
-        <div class="tool-hero"><span class="kicker">PRÉ-VALIDAÇÃO DOCUMENTAL</span><h2>Analise a NF-e antes do envio</h2><p>Carregue um XML e receba achados priorizados com base nas orientações da transição.</p></div>
-        <div class="upload-card" id="dropZone"><div class="upload-icon">⇧</div><h3>Arraste o XML da NF-e aqui</h3><p>ou selecione um arquivo no computador</p><label class="primary-button">Escolher XML<input type="file" id="xmlFile" accept=".xml,text/xml" hidden></label><button class="link-button" id="sampleXml">Usar XML demonstrativo</button></div>
-        <div class="result-card hidden" id="xmlResult"></div>
-      </section>
+        <section class="view tool-view" id="view-split">
+          <div class="tool-hero">
+            <span class="kicker">SIMULADOR MATEMÁTICO</span>
+            <h2>Teste taxas informadas por você</h2>
+            <p>O cálculo não define alíquotas, obrigação ou apuração fiscal.</p>
+          </div>
+          <div class="split-layout">
+            <form class="calculator" id="splitForm">
+              <label
+                >Valor bruto da venda
+                <div class="money-input">
+                  <span>R$</span
+                  ><input
+                    id="gross"
+                    type="number"
+                    value="125000"
+                    step="100"
+                  /></div
+              ></label>
+              <div class="rates">
+                <label
+                  >Taxa IBS informada (%)<input
+                    id="ibsRate"
+                    type="number"
+                    value="0.1"
+                    step="0.1" /></label
+                ><label
+                  >Taxa CBS informada (%)<input
+                    id="cbsRate"
+                    type="number"
+                    value="0.9"
+                    step="0.1"
+                /></label>
+              </div>
+              <button class="primary-button" type="submit">
+                Calcular exemplo</button
+              ><small
+                >As taxas são entradas do usuário, não recomendação da
+                Clara.</small
+              >
+            </form>
+            <div class="split-result" id="splitResult">
+              <span>RESULTADO DA SIMULAÇÃO</span>
+              <h3>Preencha e clique em simular</h3>
+              <p>A Clara exibirá a destinação do pagamento.</p>
+            </div>
+          </div>
+        </section>
 
-      <section class="view tool-view" id="view-split">
-        <div class="tool-hero"><span class="kicker">SIMULADOR DIDÁTICO</span><h2>Visualize o split payment</h2><p>Demonstre a segregação estimada no pagamento e o impacto imediato no caixa.</p></div>
-        <div class="split-layout">
-          <form class="calculator" id="splitForm"><label>Valor bruto da venda <div class="money-input"><span>R$</span><input id="gross" type="number" value="125000" step="100"></div></label><div class="rates"><label>IBS teste (%)<input id="ibsRate" type="number" value="0.1" step="0.1"></label><label>CBS teste (%)<input id="cbsRate" type="number" value="0.9" step="0.1"></label></div><button class="primary-button" type="submit">Simular impacto</button><small>Alíquotas editáveis para fins de demonstração.</small></form>
-          <div class="split-result" id="splitResult"><span>RESULTADO DA SIMULAÇÃO</span><h3>Preencha e clique em simular</h3><p>A Clara exibirá a destinação do pagamento.</p></div>
-        </div>
-      </section>
+        <section class="view tool-view" id="view-portfolio">
+          <div class="tool-hero">
+            <span class="kicker">CARTEIRA DE CLIENTES</span>
+            <h2>Quem precisa agir primeiro?</h2>
+            <p>
+              Priorização demonstrativa por exposição operacional à reforma.
+            </p>
+          </div>
+          <div class="portfolio-metrics">
+            <div>
+              <span>CLIENTES</span><strong>100</strong
+              ><small>na carteira</small>
+            </div>
+            <div class="danger">
+              <span>RISCO ALTO</span><strong>12</strong><small>priorizar</small>
+            </div>
+            <div>
+              <span>IMPACTADOS</span><strong>31</strong><small>neste mês</small>
+            </div>
+            <div class="orange">
+              <span>URGENTES</span><strong>4</strong><small>nesta semana</small>
+            </div>
+          </div>
+          <div class="client-table">
+            <div class="table-head">
+              <span>Cliente</span><span>Gargalo identificado</span
+              ><span>Risco</span><span>Próxima ação</span>
+            </div>
+            <div class="table-row">
+              <strong>Mercearia Bom Preço</strong
+              ><span>ERP sem campos IBS/CBS</span><b class="risk high">ALTO</b
+              ><button
+                data-question="Crie um plano de ação para a Mercearia Bom Preço adaptar a NF-e"
+              >
+                Gerar plano ›
+              </button>
+            </div>
+            <div class="table-row">
+              <strong>Solar Distribuidora</strong
+              ><span>Conciliação de pagamentos</span
+              ><b class="risk high">ALTO</b
+              ><button
+                data-question="Como preparar a Solar Distribuidora para split payment?"
+              >
+                Gerar plano ›
+              </button>
+            </div>
+            <div class="table-row">
+              <strong>Clínica Horizonte</strong
+              ><span>Classificação de serviços</span
+              ><b class="risk medium">MÉDIO</b
+              ><button
+                data-question="Quais dados levantar na Clínica Horizonte para avaliar IBS e CBS?"
+              >
+                Gerar plano ›
+              </button>
+            </div>
+          </div>
+        </section>
 
-      <section class="view tool-view" id="view-portfolio">
-        <div class="tool-hero"><span class="kicker">CARTEIRA DE CLIENTES</span><h2>Quem precisa agir primeiro?</h2><p>Priorização demonstrativa por exposição operacional à reforma.</p></div>
-        <div class="portfolio-metrics"><div><span>CLIENTES</span><strong>100</strong><small>na carteira</small></div><div class="danger"><span>RISCO ALTO</span><strong>12</strong><small>priorizar</small></div><div><span>IMPACTADOS</span><strong>31</strong><small>neste mês</small></div><div class="orange"><span>URGENTES</span><strong>4</strong><small>nesta semana</small></div></div>
-        <div class="client-table"><div class="table-head"><span>Cliente</span><span>Gargalo identificado</span><span>Risco</span><span>Próxima ação</span></div><div class="table-row"><strong>Mercearia Bom Preço</strong><span>ERP sem campos IBS/CBS</span><b class="risk high">ALTO</b><button data-question="Crie um plano de ação para a Mercearia Bom Preço adaptar a NF-e">Gerar plano ›</button></div><div class="table-row"><strong>Solar Distribuidora</strong><span>Conciliação de pagamentos</span><b class="risk high">ALTO</b><button data-question="Como preparar a Solar Distribuidora para split payment?">Gerar plano ›</button></div><div class="table-row"><strong>Clínica Horizonte</strong><span>Classificação de serviços</span><b class="risk medium">MÉDIO</b><button data-question="Quais dados levantar na Clínica Horizonte para avaliar IBS e CBS?">Gerar plano ›</button></div></div>
-      </section>
-
-      <section class="view tool-view" id="view-governance">
-        <div class="tool-hero"><span class="kicker">ISO/IEC 42001 · AIMS</span><h2>Governança incorporada ao fluxo</h2><p>Plan–Do–Check–Act aplicado ao ciclo de vida do copiloto, com evidências auditáveis.</p></div>
-        <div class="pdca"><div><i>P</i><strong>Plan</strong><span>Escopo, riscos, fontes e critérios de aceite</span></div><div><i>D</i><strong>Do</strong><span>Prompts versionados e agentes com responsabilidades</span></div><div><i>C</i><strong>Check</strong><span>Evals automáticos, logs e revisão humana</span></div><div><i>A</i><strong>Act</strong><span>Incidentes viram casos de teste e nova versão</span></div></div>
-        <div class="governance-grid">
-          <div class="governance-card"><div class="card-head"><span>VERSÕES EM PRODUÇÃO</span><b>5 registradas</b></div><div class="version-row"><strong>SOUL da Clara</strong><code id="soulVersion">carregando…</code></div><div class="version-row"><strong>Orquestrador</strong><code id="promptOrchestrator">carregando…</code></div><div class="version-row"><strong>Especialista fiscal</strong><code id="promptSpecialist">carregando…</code></div><div class="version-row"><strong>Revisor</strong><code id="promptReviewer">carregando…</code></div><div class="version-row"><strong>Guardrails</strong><code id="policyVersion">carregando…</code></div></div>
-          <div class="governance-card"><div class="card-head"><span>SUÍTE DE EVALS</span><b id="suiteStatus">Pronta</b></div><div class="eval-row"><span>Groundedness</span><strong>≥ 90%</strong></div><div class="eval-row"><span>Segurança</span><strong>100%</strong></div><div class="eval-row"><span>Integridade do contexto</span><strong>≥ 90%</strong></div><div class="eval-row"><span>Qualidade geral</span><strong>≥ 85%</strong></div></div>
-          <div class="governance-card wide"><div class="card-head"><span>REGISTRO DE RISCOS DA DEMO</span><b>4 controles ativos</b></div><div class="risk-register"><div><i class="risk-dot high-dot"></i><strong>Orientação fiscal incorreta</strong><span>RAG oficial + eval de groundedness + revisão humana</span><em>MITIGADO</em></div><div><i class="risk-dot med-dot"></i><strong>Vazamento entre clientes</strong><span>Memória por fibras com client_id e sessão isolados</span><em>CONTROLADO</em></div><div><i class="risk-dot med-dot"></i><strong>Prompt injection</strong><span>Filtro de entrada e não exposição de instruções</span><em>CONTROLADO</em></div><div><i class="risk-dot low-dot"></i><strong>Norma desatualizada</strong><span>Data de corte e catálogo temporal das fontes</span><em>MONITORADO</em></div></div></div>
-        </div>
-      </section>
-    </main>
-  </div>
-  <div class="modal-backdrop hidden" id="openaiModal">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="openaiTitle">
-      <button class="modal-close" id="closeOpenAI" aria-label="Fechar">×</button>
-      <div class="openai-mark">AI</div>
-      <span class="kicker">MODO CONVERSACIONAL</span>
-      <h2 id="openaiTitle">Conectar créditos da OpenAI</h2>
-      <p>A chave é enviada somente para este servidor local e permanece apenas na memória até a demo ser encerrada.</p>
-      <label>Modelo<select id="openaiModel"><option value="gpt-5.6-luna">GPT-5.6 Luna · rápido e econômico</option><option value="gpt-5.6-terra">GPT-5.6 Terra · mais capacidade</option></select></label>
-      <label>Chave da API<input type="password" id="openaiKey" autocomplete="off" placeholder="sk-proj-••••••••••••"></label>
-      <small>Não cole a chave no chat e não use certificados, senhas fiscais ou dados pessoais na demonstração.</small>
-      <button class="primary-button modal-action" id="saveOpenAI">Validar e conectar</button>
-      <button class="link-button hidden" id="disconnectOpenAI">Desconectar OpenAI</button>
-      <div class="modal-status hidden" id="openaiStatus"></div>
+        <section class="view tool-view" id="view-governance">
+          <div class="tool-hero">
+            <span class="kicker">CONTROLES INSPIRADOS NA ISO/IEC 42001</span>
+            <h2>Governança incorporada ao fluxo</h2>
+            <p>
+              Plan, Do, Check, Act aplicado ao piloto, sem alegação de
+              certificação.
+            </p>
+          </div>
+          <div class="pdca">
+            <div>
+              <i>P</i><strong>Plan</strong
+              ><span>Escopo, riscos, fontes e critérios de aceite</span>
+            </div>
+            <div>
+              <i>D</i><strong>Do</strong
+              ><span>Prompts versionados e agentes com responsabilidades</span>
+            </div>
+            <div>
+              <i>C</i><strong>Check</strong
+              ><span>Evals automáticos, logs e revisão humana</span>
+            </div>
+            <div>
+              <i>A</i><strong>Act</strong
+              ><span>Incidentes viram casos de teste e nova versão</span>
+            </div>
+          </div>
+          <div class="governance-grid">
+            <div class="governance-card">
+              <div class="card-head">
+                <span>VERSÕES EM PRODUÇÃO</span><b>5 registradas</b>
+              </div>
+              <div class="version-row">
+                <strong>SOUL da Clara</strong
+                ><code id="soulVersion">carregando…</code>
+              </div>
+              <div class="version-row">
+                <strong>Orquestrador</strong
+                ><code id="promptOrchestrator">carregando…</code>
+              </div>
+              <div class="version-row">
+                <strong>Especialista fiscal</strong
+                ><code id="promptSpecialist">carregando…</code>
+              </div>
+              <div class="version-row">
+                <strong>Revisor</strong
+                ><code id="promptReviewer">carregando…</code>
+              </div>
+              <div class="version-row">
+                <strong>Guardrails</strong
+                ><code id="policyVersion">carregando…</code>
+              </div>
+            </div>
+            <div class="governance-card">
+              <div class="card-head">
+                <span>SUÍTE DE GATES</span><b id="suiteStatus">Carregando</b>
+              </div>
+              <div class="eval-row">
+                <span>Fonte oficial ao vivo ou abstenção</span
+                ><strong>100%</strong>
+              </div>
+              <div class="eval-row">
+                <span>Segurança e isolamento</span><strong>100%</strong>
+              </div>
+              <div class="eval-row">
+                <span>XML sem aprovação automática</span><strong>100%</strong>
+              </div>
+              <div class="eval-row">
+                <span>Revisão fiscal obrigatória</span><strong>100%</strong>
+              </div>
+            </div>
+            <div class="governance-card wide">
+              <div class="card-head">
+                <span>REGISTRO DE RISCOS DO PILOTO</span
+                ><b>Controles em validação</b>
+              </div>
+              <div class="risk-register">
+                <div>
+                  <i class="risk-dot high-dot"></i
+                  ><strong>Orientação fiscal incorreta</strong
+                  ><span
+                    >Busca oficial ao vivo, abstenção segura e revisão
+                    humana</span
+                  ><em>EM TESTE</em>
+                </div>
+                <div>
+                  <i class="risk-dot med-dot"></i
+                  ><strong>Vazamento entre clientes</strong
+                  ><span
+                    >Identidade, cliente e sessão vinculados no servidor</span
+                  ><em>EM TESTE</em>
+                </div>
+                <div>
+                  <i class="risk-dot med-dot"></i
+                  ><strong>Prompt injection</strong
+                  ><span>Bloqueio antes do modelo e descarte da entrada</span
+                  ><em>EM TESTE</em>
+                </div>
+                <div>
+                  <i class="risk-dot low-dot"></i
+                  ><strong>Norma desatualizada</strong
+                  ><span
+                    >Catálogo expira e resposta material exige consulta ao
+                    vivo</span
+                  ><em>EM TESTE</em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-  </div>
-  <div class="toast" id="toast"></div>
-  <script src="/app.js"></script>
-</body>
+    <div class="toast" id="toast"></div>
+    <script src="/app.js"></script>
+  </body>
 </html>

@@ -1,0 +1,32 @@
+name: Pilot gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - pilot-readiness
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Setup idempotente, primeira execução
+        run: python scripts/setup.py
+      - name: Setup idempotente, segunda execução
+        run: python scripts/setup.py
+      - name: Verificação completa
+        run: .venv/bin/python scripts/verify.py
