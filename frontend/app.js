@@ -1,259 +1,437 @@
-const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-let sessionId = localStorage.getItem('clara_session') || crypto.randomUUID();
-localStorage.setItem('clara_session', sessionId);
-
-const views = {
-  chat: ['Copiloto tributário', 'Respostas fundamentadas, com memória e supervisão humana'],
-  invoice: ['Análise de NF-e', 'Pré-validação demonstrativa do XML'],
-  split: ['Split payment', 'Simulação do impacto no fluxo de caixa'],
-  portfolio: ['Carteira de clientes', 'Priorização por impacto e prontidão'],
-  governance: ['Governança da IA', 'ISO/IEC 42001, evals, guardrails e versões'],
+"use strict";
+const VIEW_LABELS = {
+    chat: [
+        "Copiloto tributário",
+        "Fontes oficiais ao vivo, abstenção segura e revisão humana",
+    ],
+    invoice: ["Triagem de NF-e", "Inspeção estrutural limitada de XML sintético"],
+    split: [
+        "Split payment",
+        "Cálculo matemático com taxas informadas pelo usuário",
+    ],
+    portfolio: [
+        "Carteira sintética",
+        "Priorização demonstrativa sem dados reais",
+    ],
+    governance: ["Governança da IA", "Hard gates, guardrails e versões"],
 };
-
-function switchView(name) {
-  $$('.view').forEach((el) => el.classList.remove('active'));
-  $(`#view-${name}`).classList.add('active');
-  $$('.nav-item').forEach((el) => el.classList.toggle('active', el.dataset.view === name));
-  $('#viewTitle').textContent = views[name][0];
-  $('#viewSubtitle').textContent = views[name][1];
-  if (innerWidth < 720) scrollTo({ top: 0, behavior: 'smooth' });
+const OFFICIAL_DOMAINS = ["gov.br", "planalto.gov.br", "cgibs.gov.br"];
+let csrfToken = "";
+function selectElement(selector, root = document) {
+    const element = root.querySelector(selector);
+    if (!element)
+        throw new Error(`Elemento obrigatório não encontrado: ${selector}.`);
+    return element;
 }
-
-function money(value) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+function selectElements(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
 }
-
-function escapeHtml(value) {
-  const div = document.createElement('div');
-  div.textContent = value;
-  return div.innerHTML;
-}
-
-function formatAnswer(value) {
-  return escapeHtml(value)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replaceAll('\n', '<br>');
-}
-
-function toast(message) {
-  const el = $('#toast');
-  el.textContent = message;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
-}
-
-async function api(path, body) {
-  const response = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const payload = await response.json();
-  if (!response.ok) throw new Error(payload.error || 'Não foi possível completar a operação.');
-  return payload;
-}
-
-function userMessage(text) {
-  const article = document.createElement('article');
-  article.className = 'message user-message';
-  article.innerHTML = `<div class="bubble"><p>${escapeHtml(text)}</p></div>`;
-  $('#conversation').appendChild(article);
-  article.scrollIntoView({ behavior: 'smooth', block: 'end' });
-}
-
-function thinkingMessage() {
-  const article = document.createElement('article');
-  article.className = 'message assistant thinking';
-  article.innerHTML = '<div class="bot-avatar">C</div><div class="bubble"><div class="dots"><i></i><i></i><i></i></div></div>';
-  $('#conversation').appendChild(article);
-  article.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  return article;
-}
-
-function answerMessage(data, placeholder) {
-  const sources = data.sources.map((source) =>
-    `<a class="source-link" href="${source.url}" target="_blank" rel="noreferrer"><span>${source.id}</span><strong>${escapeHtml(source.title)}</strong><b>↗</b></a>`
-  ).join('');
-  const review = data.needs_human_review ? '<span class="review">◉ Revisão humana recomendada</span>' : '<span>✓ Baixo risco</span>';
-  const engine = data.generation_mode === 'openai' ? '<span>✦ OpenAI + busca oficial</span>' : '<span>◌ Modo contingência</span>';
-  const sourceBlock = data.sources.length ? `<div class="sources"><span>EVIDÊNCIAS CONSULTADAS</span>${sources}</div>` : '';
-  placeholder.className = 'message assistant';
-  placeholder.innerHTML = `
-    <div class="bot-avatar">C</div>
-    <div class="bubble">
-      <p>${formatAnswer(data.answer)}</p>
-      <div class="answer-meta">${engine}<span>✓ ${Math.round(data.evals.overall * 100)}% eval</span><span>✓ ${data.sources.length} fontes</span>${review}</div>
-      ${sourceBlock}
-    </div>`;
-  placeholder.scrollIntoView({ behavior: 'smooth', block: 'end' });
-}
-
-function resetFlow() {
-  $$('.agent').forEach((el) => el.classList.remove('active', 'done'));
-  $('#runStatus').textContent = 'Processando pergunta';
-  $('#evalScore').textContent = '—';
-}
-
-async function animateTrace(trace) {
-  for (const step of trace) {
-    const node = $(`.agent[data-agent="${step.agent}"]`);
-    if (!node) continue;
-    node.classList.add('active');
-    $('#runStatus').textContent = step.detail;
-    await new Promise((resolve) => setTimeout(resolve, 270));
-    node.classList.remove('active');
-    node.classList.add('done');
-  }
-}
-
-async function sendQuestion(forcedText) {
-  const input = $('#question');
-  const text = (forcedText || input.value).trim();
-  if (!text) return;
-  switchView('chat');
-  input.value = '';
-  input.style.height = 'auto';
-  userMessage(text);
-  const placeholder = thinkingMessage();
-  const button = $('#sendButton');
-  button.disabled = true;
-  resetFlow();
-  try {
-    const data = await api('/api/chat', {
-      message: text,
-      session_id: sessionId,
-      client_id: 'mercearia-bom-preco',
+function switchView(viewName) {
+    selectElements(".view").forEach((element) => element.classList.remove("active"));
+    selectElement(`#view-${viewName}`).classList.add("active");
+    selectElements(".nav-item").forEach((element) => {
+        element.classList.toggle("active", element.dataset.view === viewName);
     });
-    await animateTrace(data.trace);
-    answerMessage(data, placeholder);
-    $('#evalScore').textContent = `${Math.round(data.evals.overall * 100)}%`;
-    $('#sourceCount').textContent = data.sources.length;
-    $('#reviewText').textContent = data.needs_human_review ? `Requer revisão · risco ${data.risk}` : 'Aprovada automaticamente';
-    $('#runStatus').textContent = `Execução ${data.evals.passed ? 'aprovada' : 'em revisão'}`;
-  } catch (error) {
-    placeholder.querySelector('.bubble').innerHTML = `<p>Não consegui concluir: ${escapeHtml(error.message)}</p>`;
-    toast(error.message);
-  } finally {
-    button.disabled = false;
-    input.focus();
-  }
+    selectElement("#viewTitle").textContent =
+        VIEW_LABELS[viewName][0];
+    selectElement("#viewSubtitle").textContent =
+        VIEW_LABELS[viewName][1];
+    if (innerWidth < 720)
+        scrollTo({ top: 0, behavior: "smooth" });
 }
-
-function renderXml(result) {
-  const findings = result.findings.map((finding) => `
-    <div class="finding ${finding.severity}"><i></i><div><strong>${escapeHtml(finding.title)}</strong><span>${escapeHtml(finding.detail)}</span></div><em>${finding.severity.toUpperCase()}</em></div>`).join('');
-  const el = $('#xmlResult');
-  el.innerHTML = `<div class="score-line"><div><span class="kicker">RESULTADO · ${escapeHtml(result.filename)}</span><h3>${result.status === 'revisar' ? 'Revisão recomendada antes do envio' : 'Estrutura básica consistente'}</h3></div><div class="score-ring" style="--score:${result.score}"><strong>${result.score}</strong></div></div>${findings}<p class="source-link"><span>RFB2026</span><strong>${escapeHtml(result.note)}</strong></p>`;
-  el.classList.remove('hidden');
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function formatMoney(value) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(value);
 }
-
+function escapeHtml(value) {
+    const container = document.createElement("div");
+    container.textContent = value;
+    return container.innerHTML;
+}
+function formatAnswer(value) {
+    return escapeHtml(value)
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replaceAll("\n", "<br>");
+}
+function showToast(message) {
+    const toast = selectElement("#toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2500);
+}
+function errorMessage(error) {
+    return error instanceof Error
+        ? error.message
+        : "Não foi possível completar a operação.";
+}
+async function readJson(response) {
+    const payload = (await response.json());
+    if (!response.ok)
+        throw new Error(payload.error || "Não foi possível completar a operação.");
+    return payload;
+}
+async function getApi(path) {
+    return readJson(await fetch(path, { credentials: "same-origin" }));
+}
+async function postApi(path, body) {
+    await initializationPromise;
+    const response = await fetch(path, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Clara-Request": "1",
+            "X-CSRF-Token": csrfToken,
+        },
+        body: JSON.stringify(body),
+    });
+    return readJson(response);
+}
+function requirePilotConsent() {
+    const accepted = selectElement("#pilotConsent").checked;
+    if (!accepted)
+        showToast("Confirme o uso exclusivo de dados sintéticos antes de continuar.");
+    return accepted;
+}
+function addUserMessage(text) {
+    const article = document.createElement("article");
+    article.className = "message user-message";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    bubble.appendChild(paragraph);
+    article.appendChild(bubble);
+    selectElement("#conversation").appendChild(article);
+    article.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+function addThinkingMessage() {
+    const article = document.createElement("article");
+    article.className = "message assistant thinking";
+    article.innerHTML =
+        '<div class="bot-avatar">C</div><div class="bubble"><div class="dots"><i></i><i></i><i></i></div></div>';
+    selectElement("#conversation").appendChild(article);
+    article.scrollIntoView({ behavior: "smooth", block: "end" });
+    return article;
+}
+function officialSourceUrl(rawUrl) {
+    try {
+        const url = new URL(rawUrl);
+        const trusted = OFFICIAL_DOMAINS.some((domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`));
+        return url.protocol === "https:" && trusted ? url.href : null;
+    }
+    catch {
+        return null;
+    }
+}
+function buildSourceLink(source) {
+    const trustedUrl = officialSourceUrl(source.url);
+    if (!trustedUrl)
+        return null;
+    const anchor = document.createElement("a");
+    anchor.className = "source-link";
+    anchor.href = trustedUrl;
+    anchor.target = "_blank";
+    anchor.rel = "noreferrer";
+    const badge = document.createElement("span");
+    badge.textContent = source.live ? "AO VIVO" : source.id;
+    const title = document.createElement("strong");
+    title.textContent = source.title;
+    const arrow = document.createElement("b");
+    arrow.textContent = "↗";
+    anchor.append(badge, title, arrow);
+    return anchor;
+}
+function renderAnswer(result, placeholder) {
+    placeholder.className = "message assistant";
+    placeholder.replaceChildren();
+    const avatar = document.createElement("div");
+    avatar.className = "bot-avatar";
+    avatar.textContent = "C";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    const paragraph = document.createElement("p");
+    paragraph.innerHTML = formatAnswer(result.answer);
+    bubble.append(paragraph, buildAnswerMetadata(result));
+    const sourceBlock = buildSourceBlock(result.sources);
+    if (sourceBlock)
+        bubble.appendChild(sourceBlock);
+    placeholder.append(avatar, bubble);
+    placeholder.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+function buildAnswerMetadata(result) {
+    const metadata = document.createElement("div");
+    metadata.className = "answer-meta";
+    const mode = document.createElement("span");
+    mode.textContent =
+        result.generation_mode === "openai_live"
+            ? "✦ Busca oficial ao vivo"
+            : "◌ Modo seguro";
+    const gates = document.createElement("span");
+    gates.textContent = result.evals.passed
+        ? "✓ Hard gates aprovados"
+        : "◉ Gate pendente";
+    const review = document.createElement("span");
+    review.className = result.needs_human_review ? "review" : "";
+    review.textContent = result.needs_human_review
+        ? "◉ Revisão obrigatória"
+        : "✓ Sem conclusão fiscal";
+    metadata.append(mode, gates, review);
+    return metadata;
+}
+function buildSourceBlock(sources) {
+    const links = sources
+        .map(buildSourceLink)
+        .filter((link) => link !== null);
+    if (!links.length)
+        return null;
+    const block = document.createElement("div");
+    block.className = "sources";
+    const label = document.createElement("span");
+    label.textContent = "FONTES OFICIAIS CONSULTADAS";
+    block.append(label, ...links);
+    return block;
+}
+function resetAgentFlow() {
+    selectElements(".agent").forEach((element) => element.classList.remove("active", "done"));
+    selectElement("#runStatus").textContent = "Processando pergunta";
+    selectElement("#evalScore").textContent = "Pendente";
+}
+async function animateTrace(trace) {
+    for (const step of trace) {
+        const node = document.querySelector(`.agent[data-agent="${CSS.escape(step.agent)}"]`);
+        if (!node)
+            continue;
+        node.classList.add("active");
+        selectElement("#runStatus").textContent = step.detail;
+        await new Promise((resolve) => setTimeout(resolve, 220));
+        node.classList.remove("active");
+        node.classList.add("done");
+    }
+}
+async function sendQuestion(forcedText) {
+    if (!requirePilotConsent())
+        return;
+    const input = selectElement("#question");
+    const text = (forcedText || input.value).trim();
+    if (!text)
+        return;
+    switchView("chat");
+    input.value = "";
+    addUserMessage(text);
+    const placeholder = addThinkingMessage();
+    const button = selectElement("#sendButton");
+    button.disabled = true;
+    resetAgentFlow();
+    await executeQuestion(text, placeholder, button, input);
+}
+async function executeQuestion(text, placeholder, button, input) {
+    try {
+        const result = await postApi("/api/chat", { message: text });
+        await animateTrace(result.trace);
+        renderAnswer(result, placeholder);
+        updateRunSummary(result);
+    }
+    catch (error) {
+        selectElement(".bubble", placeholder).textContent =
+            `Não consegui concluir: ${errorMessage(error)}`;
+        showToast(errorMessage(error));
+    }
+    finally {
+        button.disabled = false;
+        input.focus();
+    }
+}
+function updateRunSummary(result) {
+    selectElement("#evalScore").textContent = result.evals.passed
+        ? "Aprovados"
+        : "Revisão";
+    selectElement("#sourceCount").textContent = String(result.sources.length);
+    selectElement("#reviewText").textContent =
+        result.needs_human_review
+            ? `Revisão obrigatória, risco ${result.risk}`
+            : "Sem conclusão fiscal neste turno";
+    selectElement("#runStatus").textContent = result.evals.passed
+        ? "Hard gates aprovados"
+        : "Revisão necessária";
+}
+function renderXmlTriage(result) {
+    const resultCard = selectElement("#xmlResult");
+    resultCard.replaceChildren();
+    const heading = document.createElement("div");
+    heading.className = "score-line";
+    heading.innerHTML = `<div><span class="kicker">TRIAGEM PENDENTE · ${escapeHtml(result.filename)}</span><h3>Revisão e validação oficial obrigatórias</h3></div>`;
+    resultCard.appendChild(heading);
+    for (const item of result.findings)
+        resultCard.appendChild(buildFinding(item));
+    const note = document.createElement("p");
+    note.className = "source-link";
+    note.textContent = result.note;
+    resultCard.appendChild(note);
+    resultCard.classList.remove("hidden");
+    resultCard.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function buildFinding(item) {
+    const row = document.createElement("div");
+    row.classList.add("finding", item.severity);
+    const marker = document.createElement("i");
+    const content = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = item.title;
+    const detail = document.createElement("span");
+    detail.textContent = item.detail;
+    const severity = document.createElement("em");
+    severity.textContent = item.severity.toUpperCase();
+    content.append(title, detail);
+    row.append(marker, content, severity);
+    return row;
+}
 async function analyzeFile(file) {
-  try {
-    const result = await api('/api/analyze-xml', { filename: file.name, content: await file.text(), session_id: sessionId, client_id: 'mercearia-bom-preco' });
-    renderXml(result);
-  } catch (error) { toast(error.message); }
+    if (!requirePilotConsent())
+        return;
+    if (file.size > 524_288) {
+        showToast("O XML excede o limite de 512 KiB do piloto.");
+        return;
+    }
+    try {
+        const result = await postApi("/api/analyze-xml", {
+            filename: file.name,
+            content: await file.text(),
+            synthetic: true,
+        });
+        renderXmlTriage(result);
+    }
+    catch (error) {
+        showToast(errorMessage(error));
+    }
 }
-
 const sampleXml = `<?xml version="1.0" encoding="UTF-8"?>
-<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe"><NFe><infNFe Id="NFeDemo"><emit><CNPJ>12345678000190</CNPJ><xNome>Mercearia Bom Preço</xNome></emit><det nItem="1"><prod><cProd>001</cProd><xProd>Café 500g</xProd><vProd>1250.00</vProd></prod></det><total><ICMSTot><vProd>1250.00</vProd><vNF>1250.00</vNF></ICMSTot></total></infNFe></NFe></nfeProc>`;
-
-$$('.nav-item').forEach((button) => button.addEventListener('click', () => switchView(button.dataset.view)));
-$$('[data-view-target]').forEach((button) => button.addEventListener('click', () => switchView(button.dataset.viewTarget)));
-$$('[data-question]').forEach((button) => button.addEventListener('click', () => sendQuestion(button.dataset.question)));
-$('#showGov').addEventListener('click', () => switchView('governance'));
-$('#sendButton').addEventListener('click', () => sendQuestion());
-$('#question').addEventListener('keydown', (event) => {
-  if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendQuestion(); }
-});
-$('#question').addEventListener('input', (event) => {
-  event.target.style.height = 'auto';
-  event.target.style.height = `${Math.min(event.target.scrollHeight, 100)}px`;
-});
-$('#newChat').addEventListener('click', () => {
-  sessionId = crypto.randomUUID();
-  localStorage.setItem('clara_session', sessionId);
-  $$('.message:not(.welcome)').forEach((el) => el.remove());
-  resetFlow();
-  $('#runStatus').textContent = 'Nova conversa iniciada';
-  toast('Nova conversa com memória limpa');
-  switchView('chat');
-});
-$('#xmlFile').addEventListener('change', (event) => event.target.files[0] && analyzeFile(event.target.files[0]));
-$('#sampleXml').addEventListener('click', () => analyzeFile(new File([sampleXml], 'nfe_mercearia_demo.xml', { type: 'text/xml' })));
-['dragenter', 'dragover'].forEach((name) => $('#dropZone').addEventListener(name, (event) => { event.preventDefault(); $('#dropZone').classList.add('drag'); }));
-['dragleave', 'drop'].forEach((name) => $('#dropZone').addEventListener(name, (event) => { event.preventDefault(); $('#dropZone').classList.remove('drag'); }));
-$('#dropZone').addEventListener('drop', (event) => event.dataTransfer.files[0] && analyzeFile(event.dataTransfer.files[0]));
-$('#splitForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  try {
-    const result = await api('/api/split', { gross: +$('#gross').value, ibs_rate: +$('#ibsRate').value, cbs_rate: +$('#cbsRate').value });
-    $('#splitResult').innerHTML = `<span>RESULTADO DA SIMULAÇÃO</span><h3>A empresa recebe o valor líquido</h3><div class="cash-flow"><div class="cash-row"><span>Venda bruta</span><strong>${money(result.gross)}</strong></div><div class="cash-row tax"><span>IBS segregado (${result.rates.ibs}%)</span><strong>− ${money(result.ibs)}</strong></div><div class="cash-row tax"><span>CBS segregada (${result.rates.cbs}%)</span><strong>− ${money(result.cbs)}</strong></div><div class="cash-row net"><span>Recebimento líquido</span><strong>${money(result.net)}</strong></div></div><p>${escapeHtml(result.note)}</p>`;
-  } catch (error) { toast(error.message); }
-});
-
-async function refreshHealth() {
-  try {
-    const health = await fetch('/api/health').then((res) => res.json());
-    const mode = $('#engineMode');
-    const connect = $('#connectOpenAI');
-    mode.classList.add('ready');
-    mode.innerHTML = `<i></i> ${health.langgraph ? 'LangGraph ativo' : 'Fluxo demo'} · ${health.openai ? health.model : 'respostas locais'}`;
-    connect.textContent = health.openai ? 'OpenAI conectada' : 'Conectar OpenAI';
-    connect.classList.toggle('connected', health.openai);
-    $('#disconnectOpenAI').classList.toggle('hidden', !health.openai);
-    $('#sourceCount').textContent = health.sources;
-    $('#soulVersion').textContent = health.soul;
-    $('#promptOrchestrator').textContent = health.prompts.orchestrator;
-    $('#promptSpecialist').textContent = health.prompts.tax_specialist;
-    $('#promptReviewer').textContent = health.prompts.reviewer;
-    $('#policyVersion').textContent = health.policy;
-    $('#suiteStatus').textContent = health.evals;
-    return health;
-  } catch {
-    $('#engineMode').innerHTML = '<i></i> Backend desconectado';
-    return null;
-  }
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe"><NFe><infNFe Id="NFe12345678901234567890123456789012345678901234"><emit><CNPJ>12345678000195</CNPJ><xNome>Empresa Sintética</xNome></emit><det nItem="1"><prod><cProd>001</cProd><xProd>Produto sintético</xProd><NCM>09012100</NCM><vProd>1250.00</vProd></prod><IBSCBS><vIBS>1.25</vIBS><vCBS>11.25</vCBS></IBSCBS></det><total><ICMSTot><vProd>1250.00</vProd><vNF>1250.00</vNF></ICMSTot></total></infNFe></NFe></nfeProc>`;
+async function resetSession() {
+    try {
+        const result = await postApi("/api/session/reset", {});
+        csrfToken = result.csrf_token;
+        selectElements(".message:not(.welcome)").forEach((element) => element.remove());
+        resetAgentFlow();
+        selectElement("#runStatus").textContent =
+            "Nova sessão iniciada";
+        showToast("Nova sessão com memória limpa");
+        switchView("chat");
+    }
+    catch (error) {
+        showToast(errorMessage(error));
+    }
 }
-
-function openOpenAIModal() {
-  $('#openaiStatus').classList.add('hidden');
-  $('#openaiModal').classList.remove('hidden');
-  setTimeout(() => $('#openaiKey').focus(), 50);
+function bindNavigationEvents() {
+    bindWorkspaceNavigation();
+    bindViewTargets();
+    bindQuestionShortcuts();
+    selectElement("#showGov").addEventListener("click", () => switchView("governance"));
 }
-
-$('#connectOpenAI').addEventListener('click', openOpenAIModal);
-$('#closeOpenAI').addEventListener('click', () => $('#openaiModal').classList.add('hidden'));
-$('#openaiModal').addEventListener('click', (event) => {
-  if (event.target === $('#openaiModal')) $('#openaiModal').classList.add('hidden');
+function bindWorkspaceNavigation() {
+    selectElements(".nav-item").forEach((button) => {
+        button.addEventListener("click", () => switchView(button.dataset.view));
+    });
+}
+function bindViewTargets() {
+    selectElements("[data-view-target]").forEach((button) => {
+        button.addEventListener("click", () => switchView(button.dataset.viewTarget));
+    });
+}
+function bindQuestionShortcuts() {
+    selectElements("[data-question]").forEach((button) => {
+        button.addEventListener("click", () => void sendQuestion(button.dataset.question));
+    });
+}
+function bindChatEvents() {
+    selectElement("#sendButton").addEventListener("click", () => void sendQuestion());
+    selectElement("#question").addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            void sendQuestion();
+        }
+    });
+    selectElement("#newChat").addEventListener("click", () => void resetSession());
+}
+function bindXmlEvents() {
+    const fileInput = selectElement("#xmlFile");
+    const dropZone = selectElement("#dropZone");
+    fileInput.addEventListener("change", () => fileInput.files?.[0] && void analyzeFile(fileInput.files[0]));
+    selectElement("#sampleXml").addEventListener("click", () => {
+        void analyzeFile(new File([sampleXml], "nfe_sintetica_demo.xml", { type: "text/xml" }));
+    });
+    bindDropZoneEvents(dropZone);
+}
+function bindDropZoneEvents(dropZone) {
+    ["dragenter", "dragover"].forEach((name) => dropZone.addEventListener(name, (event) => {
+        event.preventDefault();
+        dropZone.classList.add("drag");
+    }));
+    ["dragleave", "drop"].forEach((name) => dropZone.addEventListener(name, (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("drag");
+    }));
+    dropZone.addEventListener("drop", (event) => {
+        const file = event.dataTransfer?.files[0];
+        if (file)
+            void analyzeFile(file);
+    });
+}
+function bindSplitEvent() {
+    selectElement("#splitForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!requirePilotConsent())
+            return;
+        try {
+            const result = await postApi("/api/split", {
+                gross: Number(selectElement("#gross").value),
+                ibs_rate: Number(selectElement("#ibsRate").value),
+                cbs_rate: Number(selectElement("#cbsRate").value),
+            });
+            selectElement("#splitResult").innerHTML =
+                buildSplitMarkup(result);
+        }
+        catch (error) {
+            showToast(errorMessage(error));
+        }
+    });
+}
+function buildSplitMarkup(result) {
+    return `<span>RESULTADO MATEMÁTICO</span><h3>Valores calculados com as taxas informadas</h3><div class="cash-flow"><div class="cash-row"><span>Venda bruta</span><strong>${formatMoney(result.gross)}</strong></div><div class="cash-row tax"><span>IBS informado (${result.rates.ibs}%)</span><strong>${formatMoney(result.ibs)}</strong></div><div class="cash-row tax"><span>CBS informada (${result.rates.cbs}%)</span><strong>${formatMoney(result.cbs)}</strong></div><div class="cash-row net"><span>Diferença matemática</span><strong>${formatMoney(result.net)}</strong></div></div><p>${escapeHtml(result.note)}</p>`;
+}
+async function initializeApplication() {
+    const session = await getApi("/api/session");
+    csrfToken = session.csrf_token;
+    const demonstration = await getApi("/api/demo-data");
+    renderRuntimeStatus(demonstration);
+}
+function renderRuntimeStatus(demonstration) {
+    selectElement("#engineMode").classList.add("ready");
+    selectElement("#engineMode").innerHTML =
+        "<i></i> Piloto privado · fonte oficial ao vivo";
+    selectElement("#sourceCount").textContent = String(demonstration.sources.length);
+    selectElement("#soulVersion").textContent =
+        demonstration.governance.soul;
+    selectElement("#promptOrchestrator").textContent =
+        demonstration.governance.prompts.orchestrator;
+    selectElement("#promptSpecialist").textContent =
+        demonstration.governance.prompts.tax_specialist;
+    selectElement("#promptReviewer").textContent =
+        demonstration.governance.prompts.reviewer;
+    selectElement("#policyVersion").textContent =
+        demonstration.governance.policy;
+    selectElement("#suiteStatus").textContent =
+        demonstration.governance.evals;
+}
+bindNavigationEvents();
+bindChatEvents();
+bindXmlEvents();
+bindSplitEvent();
+const initializationPromise = initializeApplication().catch((error) => {
+    selectElement("#engineMode").innerHTML =
+        "<i></i> Backend indisponível";
+    showToast(errorMessage(error));
+    throw error;
 });
-$('#saveOpenAI').addEventListener('click', async () => {
-  const button = $('#saveOpenAI');
-  const status = $('#openaiStatus');
-  button.disabled = true;
-  button.textContent = 'Validando conexão…';
-  status.classList.remove('hidden', 'error');
-  status.textContent = 'A OpenAI está validando a chave e o modelo.';
-  try {
-    const result = await api('/api/openai/configure', { api_key: $('#openaiKey').value, model: $('#openaiModel').value });
-    $('#openaiKey').value = '';
-    status.textContent = result.message;
-    await refreshHealth();
-    toast('OpenAI conectada com sucesso');
-  } catch (error) {
-    status.classList.add('error');
-    status.textContent = error.message;
-  } finally {
-    button.disabled = false;
-    button.textContent = 'Validar e conectar';
-  }
-});
-$('#disconnectOpenAI').addEventListener('click', async () => {
-  const result = await api('/api/openai/configure', { disconnect: true, model: $('#openaiModel').value });
-  $('#openaiStatus').classList.remove('hidden', 'error');
-  $('#openaiStatus').textContent = result.message;
-  await refreshHealth();
-});
-
-refreshHealth();

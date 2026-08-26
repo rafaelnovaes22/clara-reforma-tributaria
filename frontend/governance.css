@@ -1,0 +1,348 @@
+.governance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 1050px;
+  width: 100%;
+  margin: 0 auto;
+}
+.governance-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+}
+.governance-card.wide {
+  grid-column: 1/-1;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+}
+.card-head span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #71817c;
+}
+.card-head b {
+  font-size: 8px;
+  color: #16715b;
+  background: #e3f2ea;
+  border-radius: 20px;
+  padding: 5px 7px;
+}
+.version-row,
+.eval-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf1ef;
+  font-size: 9px;
+}
+.version-row code {
+  font-size: 8px;
+  background: #eef3ef;
+  color: #33665a;
+  border-radius: 5px;
+  padding: 5px;
+}
+.eval-row strong {
+  color: #18715b;
+}
+.risk-register > div {
+  display: grid;
+  grid-template-columns: 10px 1.2fr 2fr 0.6fr;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 0;
+  font-size: 9px;
+}
+.risk-register span {
+  color: #72807d;
+}
+.risk-register em {
+  font-style: normal;
+  font-size: 7px;
+  color: #28745f;
+}
+.risk-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.high-dot {
+  background: var(--red);
+}
+.med-dot {
+  background: var(--orange);
+}
+.low-dot {
+  background: #49ad7b;
+}
+.toast {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  background: #143e36;
+  color: #fff;
+  border-radius: 9px;
+  padding: 11px 15px;
+  font-size: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+  z-index: 30;
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.connect-openai {
+  height: 31px;
+  border: 1px solid #b9d7cb;
+  border-radius: 20px;
+  background: #e8f5ef;
+  color: #17644f;
+  padding: 0 12px;
+  font: 600 9px "DM Sans";
+  cursor: pointer;
+}
+.connect-openai.connected {
+  background: #153f37;
+  color: #dff2e9;
+  border-color: #153f37;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 30, 26, 0.55);
+  backdrop-filter: blur(5px);
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.modal-card {
+  width: min(430px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  padding: 27px;
+  box-shadow: 0 30px 90px rgba(4, 25, 20, 0.28);
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  right: 15px;
+  top: 13px;
+  border: 0;
+  background: #eef2ef;
+  border-radius: 50%;
+  width: 29px;
+  height: 29px;
+  color: #56716a;
+  font-size: 18px;
+  cursor: pointer;
+}
+.openai-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #153f37;
+  color: var(--lime);
+  display: grid;
+  place-items: center;
+  font: 800 11px Manrope;
+  margin-bottom: 15px;
+}
+.modal-card h2 {
+  font: 800 23px Manrope;
+  margin: 7px 0;
+}
+.modal-card > p {
+  color: #6f817c;
+  font-size: 11px;
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+.modal-card label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  margin: 12px 0;
+  color: #455f58;
+}
+.modal-card input,
+.modal-card select {
+  display: block;
+  width: 100%;
+  height: 43px;
+  margin-top: 6px;
+  border: 1px solid #cbd9d4;
+  border-radius: 9px;
+  background: #fff;
+  padding: 0 11px;
+  color: var(--ink);
+  font: 500 11px "DM Sans";
+  outline: none;
+}
+.modal-card input:focus,
+.modal-card select:focus {
+  border-color: #3d9378;
+  box-shadow: 0 0 0 3px #e2f2eb;
+}
+.modal-card > small {
+  display: block;
+  color: #8a9794;
+  font-size: 8px;
+  line-height: 1.5;
+}
+.modal-action {
+  width: 100%;
+  margin-top: 17px;
+}
+.modal-status {
+  margin-top: 12px;
+  border-radius: 9px;
+  padding: 10px;
+  background: #edf7f2;
+  color: #276b58;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.modal-status.error {
+  background: #fff0ec;
+  color: #9b493d;
+}
+@media (max-width: 1050px) {
+  .shell {
+    grid-template-columns: 205px 1fr;
+  }
+  .sidebar {
+    width: 205px;
+  }
+  .composer {
+    left: 205px;
+    right: 0;
+  }
+  .inspector {
+    display: none;
+  }
+  #view-chat {
+    grid-template-columns: 1fr;
+  }
+  .suggestions {
+    grid-template-columns: 1fr;
+  }
+  .split-layout {
+    grid-template-columns: 1fr;
+    max-width: 650px;
+    margin: auto;
+    width: 100%;
+  }
+}
+@media (max-width: 720px) {
+  .shell {
+    display: block;
+  }
+  .sidebar {
+    display: none;
+  }
+  main {
+    grid-column: auto;
+  }
+  header {
+    padding: 0 15px;
+  }
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 14px;
+  }
+  .mobile-brand .brand-mark {
+    width: 30px;
+    height: 30px;
+  }
+  .header-actions .mode {
+    display: none;
+  }
+  .conversation {
+    padding: 20px 16px 170px;
+  }
+  .composer {
+    left: 0;
+    right: 0;
+    padding: 10px 12px;
+  }
+  .send {
+    font-size: 0;
+  }
+  .send span {
+    margin: 0;
+  }
+  .tool-view {
+    padding: 25px 15px;
+  }
+  .tool-hero h2 {
+    font-size: 24px;
+  }
+  .upload-card {
+    padding: 30px 15px;
+  }
+  .portfolio-metrics,
+  .pdca {
+    grid-template-columns: 1fr 1fr;
+  }
+  .table-head {
+    display: none;
+  }
+  .table-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .governance-grid {
+    grid-template-columns: 1fr;
+  }
+  .governance-card.wide {
+    grid-column: auto;
+  }
+  .risk-register > div {
+    grid-template-columns: 10px 1fr;
+  }
+  .risk-register span,
+  .risk-register em {
+    grid-column: 2;
+  }
+  .header-actions {
+    gap: 7px;
+  }
+}
+.pilot-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 7px 2px 2px;
+  color: #5e726c;
+  font-size: 8px;
+  line-height: 1.4;
+}
+.pilot-consent input {
+  margin-top: 1px;
+  accent-color: #17644f;
+}
+.pilot-consent code {
+  font-size: 8px;
+}
+.finding.informativo i {
+  background: #477d70;
+}
+.finding.informativo em {
+  background: #e8f3ef;
+  color: #2f6858;
+}

@@ -1,0 +1,14 @@
+{
+  "name": "clara-pilot-frontend",
+  "private": true,
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "check": "tsc --project tsconfig.json --noEmit",
+    "format": "prettier --write *.ts index.html *.css package.json tsconfig.json",
+    "format:check": "prettier --check *.ts index.html *.css package.json tsconfig.json"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "typescript": "5.9.2"
+  }
+}

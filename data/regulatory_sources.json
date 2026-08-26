@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-08-20",
+  "review_policy": "Fontes estáticas orientam pesquisa. Conclusões fiscais materiais exigem busca oficial ao vivo e revisão da contadora.",
+  "sources": [
+    {
+      "id": "EC132",
+      "title": "Emenda Constitucional nº 132/2023",
+      "issuer": "Congresso Nacional",
+      "published_at": "2023-12-20",
+      "updated_at": "2023-12-20",
+      "effective_from": "2023-12-20",
+      "effective_to": null,
+      "reviewed_at": "2026-08-20",
+      "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc132.htm",
+      "tags": ["iva", "ibs", "cbs", "transição", "reforma"],
+      "excerpt": "Institui a reforma da tributação sobre o consumo e o modelo de IVA dual.",
+      "supports_claims": ["estrutura_iva_dual"]
+    },
+    {
+      "id": "LC214",
+      "title": "Lei Complementar nº 214/2025",
+      "issuer": "Presidência da República",
+      "published_at": "2025-01-16",
+      "updated_at": "2025-01-16",
+      "effective_from": "2025-01-16",
+      "effective_to": null,
+      "reviewed_at": "2026-08-20",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214.htm",
+      "tags": ["ibs", "cbs", "split payment", "recolhimento", "imposto seletivo"],
+      "excerpt": "Regulamenta IBS, CBS e Imposto Seletivo, inclusive modalidades de recolhimento.",
+      "supports_claims": ["base_legal_ibs_cbs", "base_legal_split_payment"]
+    },
+    {
+      "id": "RFB2026",
+      "title": "Orientações da Reforma Tributária para 2026",
+      "issuer": "Receita Federal",
+      "published_at": "2025-12-12",
+      "updated_at": "2026-05-06",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "reviewed_at": "2026-08-20",
+      "url": "https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/reforma-tributaria-do-consumo/orientacoes-2026",
+      "tags": ["2026", "documentos fiscais", "nfe", "nf-e", "cbs", "ibs", "obrigações"],
+      "excerpt": "Página geral da RFB para as obrigações e a fase de teste de 2026.",
+      "supports_claims": ["orientacoes_gerais_2026"]
+    },
+    {
+      "id": "ATO4CRONOGRAMA",
+      "title": "Cronograma de implementação dos documentos fiscais eletrônicos",
+      "issuer": "Ministério da Fazenda",
+      "published_at": "2026-07-31",
+      "updated_at": "2026-08-14",
+      "effective_from": "2026-07-30",
+      "effective_to": null,
+      "reviewed_at": "2026-08-20",
+      "url": "https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/julho/receita-federal-e-comite-gestor-do-ibs-publicam-o-cronograma-de-implementacao-dos-documentos-fiscais-eletronicos-da-reforma-tributaria-do-consumo",
+      "tags": ["cronograma", "ato conjunto 4", "nfe", "nf-e", "nfce", "simples nacional", "2026", "2027"],
+      "excerpt": "Cronograma específico: NF-e e NFC-e em 03/08/2026; documentos do Simples Nacional em 01/01/2027.",
+      "supports_claims": ["cronograma_dfe_2026", "simples_dfe_2027"]
+    },
+    {
+      "id": "ATOTECNICO1",
+      "title": "Ato Técnico Conjunto RFB/CGIBS nº 1/2026",
+      "issuer": "Receita Federal e Comitê Gestor do IBS",
+      "published_at": "2026-08-03",
+      "updated_at": "2026-08-03",
+      "effective_from": "2026-08-03",
+      "effective_to": null,
+      "reviewed_at": "2026-08-20",
+      "url": "https://normas.receita.fazenda.gov.br/sijut2consulta/link.action?idAto=152654",
+      "tags": ["ato técnico conjunto 1", "validação", "documentos fiscais", "nfe", "nf-e", "2026"],
+      "excerpt": "Aprova conjuntamente a documentação técnica dos documentos fiscais e ratifica as versões publicadas.",
+      "supports_claims": ["documentacao_tecnica_dfe_2026"]
+    }
+  ]
+}
