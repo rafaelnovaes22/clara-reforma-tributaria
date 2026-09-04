@@ -53,7 +53,7 @@
 }
 .upload-card p {
   color: #869490;
-  font-size: 11px;
+  font-size: 12px;
 }
 .primary-button {
   display: inline-flex;
@@ -64,7 +64,7 @@
   background: var(--green);
   color: #fff;
   padding: 12px 17px;
-  font: 600 11px "DM Sans";
+  font: 600 12px "DM Sans";
   cursor: pointer;
 }
 .link-button {
@@ -73,7 +73,7 @@
   border: 0;
   background: none;
   color: #19735d;
-  font: 600 10px "DM Sans";
+  font: 600 12px "DM Sans";
   cursor: pointer;
 }
 .result-card {
@@ -141,16 +141,16 @@
   display: block;
 }
 .finding strong {
-  font-size: 11px;
+  font-size: 12px;
 }
 .finding span {
-  font-size: 9px;
+  font-size: 12px;
   color: #7f8c89;
   margin-top: 3px;
 }
 .finding em {
   font-style: normal;
-  font-size: 7px;
+  font-size: 12px;
   border-radius: 20px;
   padding: 5px 7px;
   background: #fff0e8;
@@ -172,7 +172,7 @@
 }
 .calculator label {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
 }
 .money-input {
@@ -215,7 +215,7 @@
   display: block;
   text-align: center;
   color: #8c9996;
-  font-size: 8px;
+  font-size: 12px;
   margin-top: 9px;
 }
 .split-result {
@@ -223,7 +223,7 @@
   color: #fff;
 }
 .split-result > span {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1px;
   color: #9cc0b5;
 }
@@ -282,7 +282,7 @@
   display: block;
 }
 .portfolio-metrics span {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1px;
   color: #84928e;
 }
@@ -292,7 +292,7 @@
   display: block;
 }
 .portfolio-metrics small {
-  font-size: 9px;
+  font-size: 12px;
   color: #87948f;
 }
 .portfolio-metrics.danger strong,
@@ -322,12 +322,12 @@
 .table-head {
   background: #f1f4ef;
   color: #83918e;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.8px;
 }
 .table-row {
   border-top: 1px solid var(--line);
-  font-size: 10px;
+  font-size: 12px;
 }
 .table-row > span {
   color: #71807d;
@@ -336,7 +336,7 @@
   border: 0;
   background: none;
   color: #16705a;
-  font: 600 9px "DM Sans";
+  font: 600 12px "DM Sans";
   cursor: pointer;
   text-align: left;
 }
@@ -344,7 +344,7 @@
   justify-self: start;
   padding: 5px 7px;
   border-radius: 20px;
-  font-size: 7px;
+  font-size: 12px;
 }
 .risk.high {
   background: #f9e7e5;
@@ -377,7 +377,7 @@
   border-radius: 7px;
   background: var(--lime);
   color: #174c40;
-  font: 800 11px Manrope;
+  font: 800 12px Manrope;
 }
 .pdca strong,
 .pdca span {
@@ -388,7 +388,7 @@
   margin: 8px 0 4px;
 }
 .pdca span {
-  font-size: 8px;
+  font-size: 12px;
   line-height: 1.45;
   color: #b0c9c1;
 }

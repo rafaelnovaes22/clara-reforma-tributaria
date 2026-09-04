@@ -79,9 +79,8 @@ def _validate_source_dates(item: dict[str, Any]) -> None:
 def source_registry_is_fresh(sources: list[SourceRecord], today: date, max_age_days: int) -> bool:
     if not sources:
         return False
-    newest_review = max(date.fromisoformat(source["reviewed_at"]) for source in sources)
-    age_days = (today - newest_review).days
-    return 0 <= age_days <= max_age_days
+    ages = [(today - date.fromisoformat(source["reviewed_at"])).days for source in sources]
+    return all(0 <= age_days <= max_age_days for age_days in ages)
 
 
 def retrieve_sources(query: str, sources: list[SourceRecord], limit: int = 3) -> list[SourceRecord]:

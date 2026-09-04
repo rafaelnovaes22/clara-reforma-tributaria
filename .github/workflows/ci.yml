@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - pilot-readiness
+      - codex/finish-clara
 
 permissions:
   contents: read
@@ -30,3 +31,5 @@ jobs:
         run: python scripts/setup.py
       - name: Verificação completa
         run: .venv/bin/python scripts/verify.py
+      - name: Imagem privada sem segredos
+        run: docker build -t clara-pilot:ci .

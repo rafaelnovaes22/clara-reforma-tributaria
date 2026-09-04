@@ -17,9 +17,9 @@
           <div><strong>Clara</strong><span>Reforma do Consumo</span></div>
         </div>
         <button class="new-chat" id="newChat">＋ Nova conversa</button>
-        <nav>
+        <nav aria-label="Áreas do piloto">
           <p class="nav-label">ESPAÇO DE TRABALHO</p>
-          <button class="nav-item active" data-view="chat">
+          <button class="nav-item active" data-view="chat" aria-current="page">
             <span>◫</span> Copiloto
           </button>
           <button class="nav-item" data-view="invoice">
@@ -63,8 +63,7 @@
             </p>
           </div>
           <div class="header-actions">
-            <span class="mode" id="engineMode"><i></i> Verificando...</span
-            ><button class="icon-button" title="Notificações">♢<b>4</b></button>
+            <span class="mode" id="engineMode"><i></i> Verificando...</span>
           </div>
         </header>
 
@@ -151,7 +150,7 @@
                   <span>FLUXO LANGGRAPH</span
                   ><strong id="runStatus">Pronto para iniciar</strong>
                 </div>
-                <span class="live-dot">● AO VIVO</span>
+                <span class="live-dot">PILOTO</span>
               </div>
               <div class="agent-flow" id="agentFlow">
                 <div class="agent" data-agent="Memória por fibras">
@@ -210,7 +209,7 @@
             </div>
             <div class="metric-grid">
               <div>
-                <span>FONTES</span><strong id="sourceCount">5</strong
+                <span>FONTES AO VIVO</span><strong id="sourceCount">0</strong
                 ><small>oficiais</small>
               </div>
               <div>

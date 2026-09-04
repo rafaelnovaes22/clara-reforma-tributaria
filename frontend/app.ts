@@ -107,7 +107,9 @@ function buildSourceBlock(sources: OfficialSource[]): HTMLDivElement | null {
   const block = document.createElement("div");
   block.className = "sources";
   const label = document.createElement("span");
-  label.textContent = "FONTES OFICIAIS CONSULTADAS";
+  label.textContent = sources.some((source) => source.live)
+    ? "FONTES CONSULTADAS NESTA RESPOSTA"
+    : "REFERÊNCIAS DO CATÁLOGO";
   block.append(label, ...links);
   return block;
 }
@@ -135,6 +137,7 @@ async function animateTrace(trace: TraceStep[]): Promise<void> {
 }
 
 async function sendQuestion(forcedText?: string): Promise<void> {
+  if (selectElement<HTMLButtonElement>("#sendButton").disabled) return;
   if (!requirePilotConsent()) return;
   const input = selectElement<HTMLTextAreaElement>("#question");
   const text = (forcedText || input.value).trim();
@@ -175,7 +178,7 @@ function updateRunSummary(result: ChatResult): void {
     ? "Aprovados"
     : "Revisão";
   selectElement<HTMLElement>("#sourceCount").textContent = String(
-    result.sources.length,
+    result.sources.filter((source) => source.live).length,
   );
   selectElement<HTMLElement>("#reviewText").textContent =
     result.needs_human_review
@@ -381,12 +384,12 @@ async function initializeApplication(): Promise<void> {
 }
 
 function renderRuntimeStatus(demonstration: DemoResult): void {
-  selectElement<HTMLElement>("#engineMode").classList.add("ready");
-  selectElement<HTMLElement>("#engineMode").innerHTML =
-    "<i></i> Piloto privado · fonte oficial ao vivo";
-  selectElement<HTMLElement>("#sourceCount").textContent = String(
-    demonstration.sources.length,
-  );
+  const mode = selectElement<HTMLElement>("#engineMode");
+  mode.classList.remove("ready");
+  mode.textContent = runtimeStatusLabel(demonstration.runtime);
+  mode.title =
+    "Disponibilidade do provedor não comprova consulta de fontes. Cada resposta mostra suas evidências.";
+  selectElement<HTMLElement>("#sourceCount").textContent = "0";
   selectElement<HTMLElement>("#soulVersion").textContent =
     demonstration.governance.soul;
   selectElement<HTMLElement>("#promptOrchestrator").textContent =
@@ -399,6 +402,13 @@ function renderRuntimeStatus(demonstration: DemoResult): void {
     demonstration.governance.policy;
   selectElement<HTMLElement>("#suiteStatus").textContent =
     demonstration.governance.evals;
+}
+
+function runtimeStatusLabel(runtime: DemoResult["runtime"]): string {
+  if (!runtime.provider_configured)
+    return "Modo seguro · pesquisa indisponível";
+  if (!runtime.source_registry_fresh) return "Catálogo aguarda revisão";
+  return "Pesquisa configurada · revisão obrigatória";
 }
 
 bindNavigationEvents();

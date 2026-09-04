@@ -21,6 +21,7 @@ Configure como secrets ou variáveis do serviço:
 - `CLARA_PILOT_CLIENT_ID=piloto-contadora`
 - `CLARA_AUDIT_HASH_KEY` com valor aleatório de pelo menos 32 caracteres
 - `CLARA_DISABLE_AUDIT=false`
+- `CLARA_AUDIT_PATH=/data/audit.jsonl`
 - `CLARA_ALLOW_REAL_XML=false`
 - `OPENAI_API_KEY` como secret do projeto OpenAI
 - `OPENAI_MODEL=gpt-5.6-luna`
@@ -35,6 +36,10 @@ Não configure `PORT`. A Railway injeta essa variável. O processo usa `0.0.0.0`
 TLS termina no edge da Railway. O app exige Origin e Host iguais a `CLARA_PUBLIC_ORIGIN` e envia HSTS no modo piloto.
 
 Deploy ou restart apaga todas as sessões. Avise a contadora antes de cada mudança.
+
+O Dockerfile compila TypeScript com Node22 e serve o piloto em Python3.12. Monte o volume persistente em `/data`, com escrita para o UID10001. A auditoria atual é JSONL, não SQLite. Sessões continuam em memória e não são restauradas pelo volume. Não inclua dados reais ou credenciais na imagem.
+
+O catálogo registra revisão em 2026-08-20 e expira depois de 14 dias. HTTP 200 nos links não substitui revisão de conteúdo. Enquanto alguma fonte estiver vencida, `/api/ready` deve responder 503. Somente a revisão real da contadora pode renovar `reviewed_at`; não alterar essa data para passar o deploy.
 
 ## 4. Deploy manual
 

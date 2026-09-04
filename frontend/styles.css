@@ -19,7 +19,8 @@ body {
   background: var(--cream);
   color: var(--ink);
   font-family: "DM Sans", sans-serif;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.5;
 }
 .shell {
   min-height: 100vh;
@@ -36,6 +37,7 @@ body {
   display: flex;
   flex-direction: column;
   z-index: 10;
+  overflow-y: auto;
 }
 .brand {
   display: flex;
@@ -62,7 +64,7 @@ body {
 .brand span {
   display: block;
   color: #9ebbb2;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 2px;
 }
 .new-chat {
@@ -83,13 +85,14 @@ nav {
   margin-top: 24px;
 }
 .nav-label {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.5px;
   color: #83a69c;
   padding: 0 10px;
   margin-bottom: 8px;
 }
 .nav-item {
+  position: relative;
   width: 100%;
   display: flex;
   gap: 12px;
@@ -112,7 +115,7 @@ nav {
   border-radius: 20px;
   background: #2b6157;
   color: #d9ebe4;
-  font-size: 9px;
+  font-size: 12px;
   min-width: 20px;
   height: 20px;
   display: grid;
@@ -145,7 +148,7 @@ nav {
 }
 .client-card > span {
   color: #82a69c;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.2px;
 }
 .client-card strong,
@@ -157,11 +160,11 @@ nav {
   margin: 8px 0 2px;
 }
 .client-card small {
-  font-size: 9px;
+  font-size: 12px;
   color: #9bb7ae;
 }
 .client-card div {
-  font-size: 9px;
+  font-size: 12px;
   color: #b8d0c8;
   margin-top: 10px;
 }
@@ -187,7 +190,7 @@ nav {
   place-items: center;
   background: #ecb27a;
   color: #563a26;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
 }
 .user strong,
@@ -195,11 +198,11 @@ nav {
   display: block;
 }
 .user strong {
-  font-size: 10px;
+  font-size: 12px;
 }
 .user span {
   color: #88aaa0;
-  font-size: 8px;
+  font-size: 12px;
   margin-top: 2px;
 }
 .user button {
@@ -213,13 +216,13 @@ main {
   min-width: 0;
 }
 header {
-  height: 78px;
+  min-height: 78px;
   background: rgba(255, 255, 255, 0.83);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
-  padding: 0 29px;
+  padding: 12px 29px;
   position: sticky;
   top: 0;
   z-index: 8;
@@ -230,7 +233,7 @@ header h1 {
   letter-spacing: -0.2px;
 }
 header p {
-  font-size: 10px;
+  font-size: 12px;
   color: #83918f;
   margin: 3px 0 0;
 }
@@ -241,7 +244,7 @@ header p {
   gap: 15px;
 }
 .mode {
-  font-size: 9px;
+  font-size: 12px;
   color: #536b66;
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -275,9 +278,17 @@ header p {
   background: #e27c53;
   color: #fff;
   border-radius: 20px;
-  font-size: 8px;
+  font-size: 12px;
   padding: 2px 5px;
 }
 .mobile-brand {
   display: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #438c6e;
+  outline-offset: 3px;
 }

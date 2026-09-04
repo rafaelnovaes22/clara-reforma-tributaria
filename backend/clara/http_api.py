@@ -208,6 +208,7 @@ class ClaraRequestHandler(SimpleHTTPRequestHandler):
             "scenarios": SCENARIOS,
             "pilot_policy": "dados_sinteticos_e_revisao_obrigatoria",
             "governance": governance_manifest(),
+            "runtime": self.application.runtime_status(),
         }
 
     def _route_post(self) -> None:

@@ -59,6 +59,10 @@ interface PilotSessionResult {
 
 interface DemoResult {
   sources: OfficialSource[];
+  runtime: {
+    provider_configured: boolean;
+    source_registry_fresh: boolean;
+  };
   governance: {
     prompts: Record<string, string>;
     soul: string;
@@ -75,7 +79,7 @@ interface ApiErrorPayload {
 const VIEW_LABELS: Record<ViewName, [string, string]> = {
   chat: [
     "Copiloto tributário",
-    "Fontes oficiais ao vivo, abstenção segura e revisão humana",
+    "Pesquisa oficial quando disponível, abstenção segura e revisão humana",
   ],
   invoice: ["Triagem de NF-e", "Inspeção estrutural limitada de XML sintético"],
   split: [
@@ -115,6 +119,10 @@ function switchView(viewName: ViewName): void {
   selectElement<HTMLElement>(`#view-${viewName}`).classList.add("active");
   selectElements<HTMLButtonElement>(".nav-item").forEach((element) => {
     element.classList.toggle("active", element.dataset.view === viewName);
+    element.setAttribute(
+      "aria-current",
+      element.dataset.view === viewName ? "page" : "false",
+    );
   });
   selectElement<HTMLElement>("#viewTitle").textContent =
     VIEW_LABELS[viewName][0];

@@ -30,6 +30,13 @@ class SourceRegistryTests(unittest.TestCase):
         ids = [source["id"] for source in retrieve_sources("Simples Nacional NF-e 2027", sources)]
         self.assertIn("ATO4CRONOGRAMA", ids)
 
+    def test_one_recent_review_cannot_hide_an_expired_or_future_source(self) -> None:
+        sources = load_source_registry()
+        sources[0]["reviewed_at"] = "2026-07-01"
+        self.assertFalse(source_registry_is_fresh(sources, date(2026, 8, 20), 14))
+        sources[0]["reviewed_at"] = "2026-09-01"
+        self.assertFalse(source_registry_is_fresh(sources, date(2026, 8, 20), 14))
+
 
 if __name__ == "__main__":
     unittest.main()
