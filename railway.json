@@ -2,7 +2,7 @@
   "$schema": "https://railway.com/railway.schema.json",
   "deploy": {
     "startCommand": "python -u backend/server.py",
-    "healthcheckPath": "/api/ready",
+    "healthcheckPath": "/api/health",
     "healthcheckTimeout": 60,
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
