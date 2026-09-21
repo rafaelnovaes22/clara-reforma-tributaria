@@ -171,6 +171,14 @@ class ClaraApplication:
         ready = not failures
         return ready, _readiness_payload(snapshot, self.conversation.graph_ready, ready)
 
+    def runtime_status(self) -> dict[str, bool]:
+        return {
+            "provider_configured": bool(self.settings.openai_api_key),
+            "source_registry_fresh": source_registry_is_fresh(
+                self.sources, date.today(), self.settings.source_max_age_days
+            ),
+        }
+
 
 def _collect_readiness_snapshot(application: ClaraApplication, current_date: date) -> _ReadinessSnapshot:
     sources_ready = source_registry_is_fresh(

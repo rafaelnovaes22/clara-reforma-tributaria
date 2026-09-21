@@ -2,7 +2,7 @@
 const VIEW_LABELS = {
     chat: [
         "Copiloto tributário",
-        "Fontes oficiais ao vivo, abstenção segura e revisão humana",
+        "Pesquisa oficial quando disponível, abstenção segura e revisão humana",
     ],
     invoice: ["Triagem de NF-e", "Inspeção estrutural limitada de XML sintético"],
     split: [
@@ -31,6 +31,7 @@ function switchView(viewName) {
     selectElement(`#view-${viewName}`).classList.add("active");
     selectElements(".nav-item").forEach((element) => {
         element.classList.toggle("active", element.dataset.view === viewName);
+        element.setAttribute("aria-current", element.dataset.view === viewName ? "page" : "false");
     });
     selectElement("#viewTitle").textContent =
         VIEW_LABELS[viewName][0];
@@ -190,7 +191,9 @@ function buildSourceBlock(sources) {
     const block = document.createElement("div");
     block.className = "sources";
     const label = document.createElement("span");
-    label.textContent = "FONTES OFICIAIS CONSULTADAS";
+    label.textContent = sources.some((source) => source.live)
+        ? "FONTES CONSULTADAS NESTA RESPOSTA"
+        : "REFERÊNCIAS DO CATÁLOGO";
     block.append(label, ...links);
     return block;
 }
@@ -212,6 +215,8 @@ async function animateTrace(trace) {
     }
 }
 async function sendQuestion(forcedText) {
+    if (selectElement("#sendButton").disabled)
+        return;
     if (!requirePilotConsent())
         return;
     const input = selectElement("#question");
@@ -248,7 +253,7 @@ function updateRunSummary(result) {
     selectElement("#evalScore").textContent = result.evals.passed
         ? "Aprovados"
         : "Revisão";
-    selectElement("#sourceCount").textContent = String(result.sources.length);
+    selectElement("#sourceCount").textContent = String(result.sources.filter((source) => source.live).length);
     selectElement("#reviewText").textContent =
         result.needs_human_review
             ? `Revisão obrigatória, risco ${result.risk}`
@@ -408,10 +413,12 @@ async function initializeApplication() {
     renderRuntimeStatus(demonstration);
 }
 function renderRuntimeStatus(demonstration) {
-    selectElement("#engineMode").classList.add("ready");
-    selectElement("#engineMode").innerHTML =
-        "<i></i> Piloto privado · fonte oficial ao vivo";
-    selectElement("#sourceCount").textContent = String(demonstration.sources.length);
+    const mode = selectElement("#engineMode");
+    mode.classList.remove("ready");
+    mode.textContent = runtimeStatusLabel(demonstration.runtime);
+    mode.title =
+        "Disponibilidade do provedor não comprova consulta de fontes. Cada resposta mostra suas evidências.";
+    selectElement("#sourceCount").textContent = "0";
     selectElement("#soulVersion").textContent =
         demonstration.governance.soul;
     selectElement("#promptOrchestrator").textContent =
@@ -424,6 +431,13 @@ function renderRuntimeStatus(demonstration) {
         demonstration.governance.policy;
     selectElement("#suiteStatus").textContent =
         demonstration.governance.evals;
+}
+function runtimeStatusLabel(runtime) {
+    if (!runtime.provider_configured)
+        return "Modo seguro · pesquisa indisponível";
+    if (!runtime.source_registry_fresh)
+        return "Catálogo aguarda revisão";
+    return "Pesquisa configurada · revisão obrigatória";
 }
 bindNavigationEvents();
 bindChatEvents();

@@ -1,0 +1,14 @@
+.git
+.venv
+**/node_modules
+**/__pycache__
+.env
+.env.*
+*.pem
+*.key
+.npm-cache
+.ruff_cache
+data/audit.jsonl
+evals/*results.json
+*.log
+*.tmp

@@ -40,7 +40,9 @@ def validate_railway_contract() -> None:
     deployment: dict[str, Any] = manifest.get("deploy", {})
     expected = {
         "startCommand": "python -u backend/server.py",
-        "healthcheckPath": "/api/ready",
+        # Liveness (/api/health), não readiness fiscal (/api/ready): separação
+        # introduzida ao descolar liveness de readiness no servidor.
+        "healthcheckPath": "/api/health",
         "numReplicas": 1,
     }
     mismatches = [key for key, value in expected.items() if deployment.get(key) != value]
@@ -140,14 +142,20 @@ def verify_langgraph() -> None:
     )
 
 
+def verify_frontend() -> None:
+    npm = "npm.cmd" if os.name == "nt" else "npm"
+    run_command([npm, "run", "check", "--prefix", "frontend"])
+    run_command([npm, "run", "format:check", "--prefix", "frontend"])
+    verify_compiled_frontend()
+    run_command(["node", "--test", "frontend/tests/runtime.test.mjs"])
+
+
 def main() -> int:
     ruff = environment_executable("ruff")
     run_command([ruff, "format", "--check", *PYTHON_TARGETS])
     run_command([ruff, "check", *PYTHON_TARGETS])
     run_command([sys.executable, "-m", "compileall", "-q", *PYTHON_TARGETS])
-    run_command(["npm.cmd" if os.name == "nt" else "npm", "run", "check", "--prefix", "frontend"])
-    run_command(["npm.cmd" if os.name == "nt" else "npm", "run", "format:check", "--prefix", "frontend"])
-    verify_compiled_frontend()
+    verify_frontend()
     validate_json_files()
     validate_structure_limits()
     run_command([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"])

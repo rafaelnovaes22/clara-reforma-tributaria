@@ -9,7 +9,9 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
+from unittest.mock import patch
 
 from backend.clara.application import ClaraApplication
 from backend.clara.http_api import create_http_server
@@ -167,10 +169,27 @@ class HttpSecurityIntegrationTests(unittest.TestCase):
 
     def test_health_and_readiness_are_public_and_minimal(self) -> None:
         health = self.running.request("/api/health")
-        readiness = self.running.request("/api/ready")
+        with patch("backend.clara.application.date") as clock:
+            clock.today.return_value = date(2026, 8, 20)
+            readiness = self.running.request("/api/ready")
         self.assertEqual(health.payload, {"status": "ok"})
         self.assertEqual(readiness.status, 200)
         self.assertEqual(readiness.payload["status"], "ready")
+
+    def test_expired_registry_keeps_readiness_closed(self) -> None:
+        with patch("backend.clara.application.date") as clock:
+            clock.today.return_value = date(2026, 9, 10)
+            readiness = self.running.request("/api/ready")
+        self.assertEqual(readiness.status, 503)
+        self.assertFalse(readiness.payload["checks"]["source_registry_fresh"])
+
+    def test_authenticated_runtime_does_not_claim_live_research_without_provider(self) -> None:
+        denied = self.running.request("/api/demo-data")
+        result = self.running.request("/api/demo-data", authenticated=True)
+        self.assertEqual(denied.status, 401)
+        self.assertEqual(set(result.payload["runtime"]), {"provider_configured", "source_registry_fresh"})
+        self.assertFalse(result.payload["runtime"]["provider_configured"])
+        self.assertTrue(all(not source["live"] for source in result.payload["sources"]))
 
     def test_static_content_requires_basic_auth_and_has_security_headers(self) -> None:
         denied = self.running.request("/")

@@ -21,6 +21,7 @@ Configure como secrets ou variáveis do serviço:
 - `CLARA_PILOT_CLIENT_ID=piloto-contadora`
 - `CLARA_AUDIT_HASH_KEY` com valor aleatório de pelo menos 32 caracteres
 - `CLARA_DISABLE_AUDIT=false`
+- `CLARA_AUDIT_PATH=/data/audit.jsonl`
 - `CLARA_ALLOW_REAL_XML=false`
 - `OPENAI_API_KEY` como secret do projeto OpenAI
 - `OPENAI_MODEL=gpt-5.6-luna`
@@ -30,11 +31,19 @@ Não configure `PORT`. A Railway injeta essa variável. O processo usa `0.0.0.0`
 
 ## 3. Contrato operacional
 
-`railway.json` fixa uma réplica, start command, readiness e política de restart. Uma réplica é obrigatória enquanto memória e sessões forem locais ao processo.
+`railway.json` fixa uma réplica, start command, liveness e política de restart. Uma réplica é obrigatória enquanto memória e sessões forem locais ao processo.
+
+Railway e Docker usam `/api/health` para confirmar que o servidor HTTP iniciou. Essa rota retorna somente `{"status":"ok"}`. Publicação privada não autoriza o piloto fiscal: `/api/ready` continua sendo o gate profissional independente e deve permanecer em 503 enquanto faltar provedor, revisão vigente ou outra condição operacional.
+
+Para publicar somente a entrada privada, mantenha `OPENAI_API_KEY` vazia ou ausente, autenticação e auditoria habilitadas, XML real desabilitado e todas as datas de revisão intactas. O painel deve informar a indisponibilidade da pesquisa e as respostas devem abster-se de concluir matéria fiscal. Validar login, abstenção e `/api/ready` após o deploy. Não confundir liveness verde com autorização da contadora para usar o produto em casos fiscais.
 
 TLS termina no edge da Railway. O app exige Origin e Host iguais a `CLARA_PUBLIC_ORIGIN` e envia HSTS no modo piloto.
 
 Deploy ou restart apaga todas as sessões. Avise a contadora antes de cada mudança.
+
+O Dockerfile compila TypeScript com Node22 e serve o piloto em Python3.12. Monte o volume persistente em `/data`, com escrita para o UID10001. A auditoria atual é JSONL, não SQLite. Sessões continuam em memória e não são restauradas pelo volume. Não inclua dados reais ou credenciais na imagem.
+
+O catálogo registra revisão em 2026-08-20 e expira depois de 14 dias. HTTP 200 nos links não substitui revisão de conteúdo. Enquanto alguma fonte estiver vencida, `/api/ready` deve responder 503. Somente a revisão real da contadora pode renovar `reviewed_at`; não alterar essa data para passar o deploy.
 
 ## 4. Deploy manual
 
