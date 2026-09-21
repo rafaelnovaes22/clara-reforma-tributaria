@@ -56,9 +56,7 @@ class JevIntentCheck:
 def sanitize_state_text(raw: str) -> str:
     if not raw:
         return ""
-    clean = "".join(
-        ch for ch in raw if ch in {"\n", "\t"} or 32 <= ord(ch) < 127 or ord(ch) >= 160
-    )
+    clean = "".join(ch for ch in raw if ch in {"\n", "\t"} or 32 <= ord(ch) < 127 or ord(ch) >= 160)
     clean = " ".join(clean.split())
     return clean[:JEV_MAX_STATE_CHARS]
 

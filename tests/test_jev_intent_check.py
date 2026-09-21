@@ -61,11 +61,7 @@ class QueryTests(unittest.TestCase):
         def boom(payload: bytes, api_key: str, timeout_s: float):
             raise TimeoutError("rede fora")
 
-        self.assertIsNone(
-            query_intent_check(
-                "oi", api_key="chave-real-123", enabled=True, post=boom
-            )
-        )
+        self.assertIsNone(query_intent_check("oi", api_key="chave-real-123", enabled=True, post=boom))
 
     def test_rejects_unknown_choice_and_empty_state(self) -> None:
         self.assertIsNone(
@@ -82,19 +78,13 @@ class QueryTests(unittest.TestCase):
             called.append(payload)
             return None
 
-        self.assertIsNone(
-            query_intent_check(
-                "   ", api_key="chave-real-123", enabled=True, post=spy
-            )
-        )
+        self.assertIsNone(query_intent_check("   ", api_key="chave-real-123", enabled=True, post=spy))
         self.assertEqual(called, [])
 
 
 class DivergenceTests(unittest.TestCase):
     def test_silent_on_agreement_and_loud_on_divergence(self) -> None:
-        agree = query_intent_check(
-            "oi", api_key="chave-real-123", enabled=True, post=fake_post("tax_question", 0.2)
-        )
+        agree = query_intent_check("oi", api_key="chave-real-123", enabled=True, post=fake_post("tax_question", 0.2))
         self.assertIsNone(divergence_fields("tax_question", agree))
 
         check = query_intent_check(
