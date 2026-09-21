@@ -127,6 +127,26 @@ def default_post(payload: bytes, api_key: str, timeout_s: float) -> dict | None:
         return None
 
 
+def assemble_check(parsed: dict, latency_ms: int) -> JevIntentCheck:
+    distance = abs(parsed["choice_confidence"] - 0.5) * 2
+    return JevIntentCheck(
+        choice=parsed["choice"],
+        choice_confidence=parsed["choice_confidence"],
+        material_noul=parsed["material_noul"],
+        material=parsed["material_noul"] >= ACT,
+        escalate=(ESCALATE_BELOW <= parsed["choice_confidence"] < ACT) or distance < ESCALATE_BELOW,
+        model=parsed["model"],
+        latency_ms=latency_ms,
+    )
+
+
+def fetch_parsed(post_fn, payload: bytes, api_key: str, timeout_s: float) -> dict | None:
+    try:
+        return post_fn(payload, api_key, timeout_s)
+    except Exception:
+        return None
+
+
 def query_intent_check(
     text: str,
     *,
@@ -141,26 +161,12 @@ def query_intent_check(
     state = sanitize_state_text(text)
     if not state:
         return None
-    post_fn = post or default_post
     payload = json.dumps(build_body(state, model)).encode("utf-8")
     start = time.monotonic()
-    try:
-        parsed = post_fn(payload, api_key or "", timeout_s)
-    except Exception:
-        return None
+    parsed = fetch_parsed(post or default_post, payload, api_key or "", timeout_s)
     if parsed is None:
         return None
-    latency_ms = int((time.monotonic() - start) * 1000)
-    distance = abs(parsed["choice_confidence"] - 0.5) * 2
-    return JevIntentCheck(
-        choice=parsed["choice"],
-        choice_confidence=parsed["choice_confidence"],
-        material_noul=parsed["material_noul"],
-        material=parsed["material_noul"] >= ACT,
-        escalate=(ESCALATE_BELOW <= parsed["choice_confidence"] < ACT) or distance < ESCALATE_BELOW,
-        model=parsed["model"],
-        latency_ms=latency_ms,
-    )
+    return assemble_check(parsed, int((time.monotonic() - start) * 1000))
 
 
 def divergence_fields(drafted_intent: str, check: JevIntentCheck | None) -> dict | None:

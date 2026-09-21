@@ -40,7 +40,9 @@ def validate_railway_contract() -> None:
     deployment: dict[str, Any] = manifest.get("deploy", {})
     expected = {
         "startCommand": "python -u backend/server.py",
-        "healthcheckPath": "/api/ready",
+        # Liveness (/api/health), não readiness fiscal (/api/ready): separação
+        # introduzida ao descolar liveness de readiness no servidor.
+        "healthcheckPath": "/api/health",
         "numReplicas": 1,
     }
     mismatches = [key for key, value in expected.items() if deployment.get(key) != value]
