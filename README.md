@@ -1,5 +1,7 @@
 # Clara: copiloto da Reforma Tributária
 
+> **Portfolio Sample / Amostra de portfólio** — Public code sample for technical evaluation by recruiters. See [NOTICE.md](NOTICE.md) for terms. All data in this repo is synthetic. O piloto com a contadora segue privado; nenhum dado real está versionado aqui.
+
 Piloto privado para uma contadora testar pesquisa fiscal assistida, triagem limitada de XML sintético e simulação matemática de split payment.
 
 Status: candidato a piloto. Não é produto público, validador fiscal ou substituto da revisão profissional.
